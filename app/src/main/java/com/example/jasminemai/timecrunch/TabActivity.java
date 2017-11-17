@@ -1,5 +1,6 @@
 package com.example.jasminemai.timecrunch;
 
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -177,4 +178,7 @@ public class TabActivity extends AppCompatActivity {
 //        Log.d("addTask", "Create a new task");
 //
 //    }
+
+
+
 }

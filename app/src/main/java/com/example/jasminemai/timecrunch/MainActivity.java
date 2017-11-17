@@ -1,5 +1,6 @@
 package com.example.jasminemai.timecrunch;
 
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,6 +20,11 @@ public class MainActivity extends AppCompatActivity {
         Log.d("ScheduleButtonClicked", "Create a new account");
         Intent newScheduleIntent = new Intent(this, TabActivity.class);
         startActivity(newScheduleIntent);
+    }
+
+    public void onTimeClicked(View v){
+        DialogFragment newFragment = new TimePickerFragment();
+        newFragment.show(getFragmentManager(),"TimePicker");
     }
 
 }

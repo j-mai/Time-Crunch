@@ -64,8 +64,8 @@ public class DatePickerFragment extends DialogFragment {
         int month = c.get(Calendar.MONTH);
         int day = c.get(Calendar.DAY_OF_MONTH);
 
+
         // Create a new instance of DatePickerDialog and return it
-//        return new DatePickerDialog(getActivity(), (NewTask)getActivity(), year, month, day);
         return new DatePickerDialog(getActivity(), (NewTask)getActivity(), year, month, day);
     }
 
@@ -110,12 +110,6 @@ public class DatePickerFragment extends DialogFragment {
 //        mListener.onDatePicker();
 
 //    }
-
-    public void updateDate(EditText date){
-        SimpleDateFormat formatter=new SimpleDateFormat("DD-MMM-yyyy");
-        String pickedDate = formatter.format(c.getTime());
-        date.setText(pickedDate);
-    }
 
 
 //    public interface OnFragmentInteractionListener {

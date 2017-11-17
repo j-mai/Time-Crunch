@@ -19,6 +19,29 @@
     <string name="from">From: </string>
     <string name="to">To: </string>
     <string name="repeat"> Repeat Forever</string>
+    <string name="taskType"> Task Type:</string>
+
+    <string-array name="chooseType">
+        <item>Study</item>
+        <item>Exercise</item>
+        <item>Other</item>
+    </string-array>
+
+    //Settings
+    <string name="setting">Settings</string>
+    <string name="setTime">Set Time</string>
+    <string name="wakeTime">Wake Time:</string>
+    <string name="bedtime">Bedtime:</string>
+    <string name="sleepTime"> Desired hours of sleep: </string>
+
+    <string-array name="sleepHours">
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
+
 
 
 

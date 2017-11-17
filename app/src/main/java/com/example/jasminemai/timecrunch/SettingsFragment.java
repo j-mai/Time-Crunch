@@ -7,14 +7,14 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link SettingsFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link SettingsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class SettingsFragment extends Fragment {
@@ -27,10 +27,34 @@ public class SettingsFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    Spinner numHours;
+
 //    private OnFragmentInteractionListener mListener;
 
     public SettingsFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_settings, container, false);
+        numHours = (Spinner) view.findViewById(R.id.selectSleep);
+        setupSpinner();
+        return view;
+    }
+
+    //sets up the spinner with the different amount of hours of sleep
+    public void setupSpinner(){
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this.getActivity(),
+                R.array.sleepHours, android.R.layout.simple_spinner_item);
+//        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this.getActivity(),
+//                R.array.sleepHours, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        numHours.setAdapter(adapter);
     }
 
     /**
@@ -51,21 +75,7 @@ public class SettingsFragment extends Fragment {
 //        return fragment;
 //    }
 //
-//    @Override
-//    public void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        if (getArguments() != null) {
-//            mParam1 = getArguments().getString(ARG_PARAM1);
-//            mParam2 = getArguments().getString(ARG_PARAM2);
-//        }
-//    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false);
-    }
 
     // TODO: Rename method, update argument and hook method into UI event
 //    public void onButtonPressed(Uri uri) {

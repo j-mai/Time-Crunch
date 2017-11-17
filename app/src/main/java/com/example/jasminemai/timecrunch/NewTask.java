@@ -7,9 +7,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.ToggleButton;
 
@@ -18,6 +20,7 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
     EditText currentDatePicked = null;
     EditText endDate;
     Switch repeat;
+    Spinner chooseType;
 
 
     //Create the New Task
@@ -25,9 +28,13 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_task);
+
+        //initialize variables
         endDate = (EditText) findViewById((R.id.endDate));
         repeat = ((Switch) findViewById(R.id.repeat));
+        chooseType = (Spinner) findViewById(R.id.chooseTask);
         onRepeatClicked();
+        setupSpinner();
     }
 
     //Called when the start or the end date is picked
@@ -74,5 +81,16 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
         });
 
     }
+
+    //sets up the spinner with the different types of tasks
+    public void setupSpinner(){
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.chooseType, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        chooseType.setAdapter(adapter);
+    }
+
 
 }
