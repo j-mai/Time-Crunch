@@ -10,6 +10,7 @@ import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.FreeBusyRequest;
 import com.google.api.services.calendar.model.FreeBusyRequestItem;
 import com.google.api.services.calendar.model.FreeBusyResponse;
+import com.google.api.services.calendar.model.TimePeriod;
 
 import org.json.JSONObject;
 
@@ -20,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 /**
@@ -29,7 +31,7 @@ import java.util.TimeZone;
 public class CalendarFunctions {
 
     public static DateTime makeDate (String date, String time) {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
         date = date.replaceAll("\\s", "");
         time = time.replaceAll("\\s", "");
         String dateToParse = date + " " + time;
@@ -148,5 +150,10 @@ public class CalendarFunctions {
         }
 
         return false;
+    }
+
+    public static List<TimePeriod> getBusy (FreeBusyResponse response, String calendarId) {
+
+        return response.getCalendars().get(calendarId).getBusy();
     }
 }

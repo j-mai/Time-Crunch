@@ -412,16 +412,21 @@ public class TabActivity extends AppCompatActivity implements EasyPermissions.Pe
          */
         private String getDataFromApi() throws IOException {
 
-            Task task = new Task ("2017-11-19", "12:30:00", "2017-11-19",
-                    "16:43:00", "Bio Studying", "studying");
-
-            task.setEventID("9nmpm00al0cpfanku2e3hgmg1s");
-
-            return CalendarFunctions.deleteEvent(task, mService, "primary").toString();
+//            Task task = new Task ("2017-11-19", "12:30:00", "2017-11-19",
+//                    "16:43:00", "Bio Studying", "studying");
+//
+//            task.setEventID("9nmpm00al0cpfanku2e3hgmg1s");
+//
+//            return CalendarFunctions.deleteEvent(task, mService, "primary").toString();
 
 //            Event event = CalendarFunctions.addEvent(task, mService, "primary");
 
 //            return event.toPrettyString();
+
+            FreeBusyResponse response = CalendarFunctions.getFreeBusy(mService, "2017-11-19", "09:35:00",
+                    "2017-11-29", "23:30:00", "primary");
+
+            return response.getCalendars().get("primary").getBusy().get(0).toPrettyString();
         }
 
 
