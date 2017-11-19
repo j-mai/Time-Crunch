@@ -27,6 +27,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.text.BoringLayout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -61,6 +62,7 @@ import com.google.api.services.calendar.model.FreeBusyResponse;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -423,10 +425,26 @@ public class TabActivity extends AppCompatActivity implements EasyPermissions.Pe
 
 //            return event.toPrettyString();
 
-            FreeBusyResponse response = CalendarFunctions.getFreeBusy(mService, "2017-11-19", "09:35:00",
-                    "2017-11-29", "23:30:00", "primary");
+//            FreeBusyResponse response = CalendarFunctions.getFreeBusy(mService, "2017-11-19", "09:35:00",
+//                    "2017-11-29", "23:30:00", "primary");
+//
+//            return response.getCalendars().get("primary").getBusy().get(0).toPrettyString();
 
-            return response.getCalendars().get("primary").getBusy().get(0).toPrettyString();
+            Boolean check1 = TimeFunctions.bedTimeCalc("07:00:00","23:00:00");
+            Log.d("timeFunction", "check1: " + check1);
+            Boolean check2 = TimeFunctions.bedTimeCalc("08:00:00", "02:00:00");
+            Log.d("timeFunction", "check2: " + check2);
+            Boolean check3 = TimeFunctions.bedTimeCalc("07:53:00", "02:42:00");
+            Log.d("timeFunction", "check3: " + check3);
+            Boolean check4 = TimeFunctions.bedTimeCalc("07:21:00", "02:50:00");
+            Log.d("timeFunction", "check4: " + check4);
+            Boolean check5 = TimeFunctions.bedTimeCalc("02:00:00","23:15:00");
+            Log.d("timeFunction", "check5: " + check5);
+            Boolean check6 = TimeFunctions.bedTimeCalc("08:00:00", "23:17:00");
+            Log.d("timeFunction", "check6: " + check6);
+            Boolean check7 = TimeFunctions.bedTimeCalc("16:00:00", "11:15:00");
+
+            return ("lastCheck is: " + check7);
         }
 
 
