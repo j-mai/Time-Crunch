@@ -1,5 +1,6 @@
 package com.example.jasminemai.timecrunch;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -70,6 +71,7 @@ public class ToDoFragment extends Fragment {
         // Inflate the layout for this fragment
         todoFragView = inflater.inflate(R.layout.fragment_to_do, container, false);
         onNewTaskButtonClicked(todoFragView);
+        onAuthButtonClicked(todoFragView);
         return todoFragView;
     }
 
@@ -125,4 +127,18 @@ public class ToDoFragment extends Fragment {
         Log.d("addTask", "Create a new task");
 
     }
+
+    public void onAuthButtonClicked(View v) {
+        final Button button = v.findViewById(R.id.Schedule);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                button.setEnabled(false);
+                ((TabActivity) getActivity()).getResultsFromApi();
+                button.setEnabled(true);
+            }
+        });
+
+    }
 }
+
