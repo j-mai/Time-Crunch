@@ -66,7 +66,10 @@ import com.google.api.services.calendar.model.TimePeriod;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
+import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -440,12 +443,27 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
         private String getDataFromApi() throws IOException, JSONException {
 
             String calendarId = "primary";
-            String startTestfreeTime = "06:00:00";
-            String endTestfreeTime = "23:45:00";
+
+            SharedPreferences settingsSP = getSharedPreferences(TC_SHARED_PREF, Context.MODE_PRIVATE);
+            String wakeTime = settingsSP.getString("wakeTime", "");
+            String sleepTime = settingsSP.getString("bedTime", "");
+
+            if (wakeTime.equals("")) {
+                wakeTime = "06:00:00";
+            }
+
+            if (sleepTime.equals("") || LocalTime.parse(sleepTime).isAfter(LocalTime.parse("23:59:59"))) {
+                sleepTime = "23:59:59";
+            }
+
+            Log.d("wakeTime", wakeTime);
+            Log.d("sleepTime", sleepTime);
+
+            LocalDate today = new LocalDate(DateTimeZone.getDefault());
 
             //first, see when the user is free
-            FreeBusyResponse fbResponse = CalendarFunctions.getFreeBusy(mService, "2017-11-20",
-                    "06:00:00", "2017-11-20", "23:30:00", calendarId);
+            FreeBusyResponse fbResponse = CalendarFunctions.getFreeBusy(mService, today.toString(),
+                    wakeTime, today.toString(), sleepTime, calendarId);
 
             List<TimePeriod> busyTimes;
             List<Interval> freeTimes;
@@ -459,7 +477,7 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
             } else {
                 Log.d("FreeBusy", "gotBusy!");
                 busyTimes = fbResponse.getCalendars().get(calendarId).getBusy();
-                freeTimes = TimeFunctions.getFreeTimes(startTestfreeTime, endTestfreeTime,
+                freeTimes = TimeFunctions.getFreeTimes(wakeTime, sleepTime,
                         busyTimes);
             }
 
@@ -519,6 +537,7 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
 
                         String lastInputType = null;
                         String lastTaskName = null;
+                        Interval lastTaskInterval = null;
                         //go through remaining list of events
                         while (!all.isEmpty() && freeTimes.size() > 0) {
                             Interval interval = freeTimes.get(0);
@@ -530,13 +549,20 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                                 //choose a task that matches the time frame
                                 for (Task t : all) {
                                     if (t.totalTime == 60) {
-                                        t1 = t;
-                                        break;
+                                        if (t.type.equals("Study") && lastTaskName != null &&
+                                                !lastTaskName.equals(t.name)) {
+                                            t1 = t;
+                                            break;
+                                        } else {
+                                            t1=t;
+                                        }
                                     }
                                 }
 
                                 //fit the task in the time
                                 if (t1 != null) {
+                                    lastInputType = t1.type;
+                                    lastTaskName = t1.name;
                                     RankingAlgorithm.calculateForShorterTimeBlocks(interval, t1, freeTimes,
                                             mService, calendarId, tempMap, all);
 
@@ -545,12 +571,19 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                                     Task t2 = null;
                                     for (Task t : all) {
                                         if (t.totalTime < interval.toDuration().getStandardMinutes()) {
-                                            t2 = t;
-                                            break;
+                                            if (t.type.equals("Study") && lastTaskName != null &&
+                                                    !lastTaskName.equals(t.name)) {
+                                                t2 = t;
+                                                break;
+                                            } else {
+                                                t2=t;
+                                            }
                                         }
                                     }
 
                                     if (t2 != null) {
+                                        lastInputType = t2.type;
+                                        lastTaskName = t2.name;
                                         RankingAlgorithm.calculateForShorterTimeBlocks(interval, t2, freeTimes,
                                                 mService, calendarId, tempMap, all);
 
@@ -565,14 +598,20 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                                 Task t3 = null;
                                 for (Task t : all) {
                                     if (t.totalTime < interval.toDuration().getStandardMinutes()) {
-                                        t3 = t;
-                                        break;
+                                        if (t.type.equals("Study") && lastTaskName != null &&
+                                                !lastTaskName.equals(t.name)) {
+                                            t3 = t;
+                                            break;
+                                        } else {
+                                            t3=t;
+                                        }
                                     }
 
                                 }
 
                                 if (t3 != null) {
-
+                                    lastInputType = t3.type;
+                                    lastTaskName = t3.name;
                                     RankingAlgorithm.calculateForShorterTimeBlocks(interval, t3, freeTimes,
                                             mService, calendarId, tempMap, all);
 
