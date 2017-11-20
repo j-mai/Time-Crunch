@@ -2,6 +2,7 @@ package com.example.jasminemai.timecrunch;
 
 import android.app.DatePickerDialog;
 import android.app.DialogFragment;
+import android.content.SharedPreferences;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,7 +16,17 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.ToggleButton;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import com.google.common.reflect.TypeToken;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class NewTask extends FragmentActivity implements DatePickerDialog.OnDateSetListener {
+
+    public static String TC_SHARED_PREF = "my_sharedpref";
 
     EditText currentDatePicked = null;
     EditText endDate;
@@ -90,6 +101,29 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         chooseType.setAdapter(adapter);
+    }
+
+    //saves the task in shared preferences
+    public void onSaveButtonClicked(View v){
+        Map<String, String> tasksMap;
+
+        SharedPreferences sp = getSharedPreferences(TC_SHARED_PREF, 0);
+        SharedPreferences.Editor editor = sp.edit();
+
+        String tasks = sp.getString("tasksMap",null);
+        Gson gson = new Gson();
+
+        //If a values map already exists, set it equal to tasksMap variable
+        //else, create a new map
+        if (tasks != null){
+            java.lang.reflect.Type type = new TypeToken<HashMap<String, String>>(){}.getType();
+            tasksMap = gson.fromJson(tasks, type);
+        } else {
+            tasksMap = new HashMap<String, String>();
+        }
+
+
+        editor.commit();
     }
 
 

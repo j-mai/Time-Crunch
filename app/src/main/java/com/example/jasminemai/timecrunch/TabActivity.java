@@ -19,6 +19,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -37,6 +38,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -80,7 +82,7 @@ import pub.devrel.easypermissions.EasyPermissions;
     Quickstart code
  */
 
-public class TabActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
+public class TabActivity extends FragmentActivity implements EasyPermissions.PermissionCallbacks {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide

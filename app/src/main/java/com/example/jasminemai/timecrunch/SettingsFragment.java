@@ -1,13 +1,17 @@
 package com.example.jasminemai.timecrunch;
 
+import android.app.DialogFragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 
 
@@ -27,7 +31,13 @@ public class SettingsFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    int REQUEST_CODE = 0;
+    private static final String DIALOG_TIME = "date";
+
     Spinner numHours;
+    EditText wakeTime;
+
+    android.support.v4.app.FragmentManager fragmentManager;
 
 //    private OnFragmentInteractionListener mListener;
 
@@ -40,8 +50,22 @@ public class SettingsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
+
         numHours = (Spinner) view.findViewById(R.id.selectSleep);
+        wakeTime = (EditText) view.findViewById(R.id.wakeTime);
         setupSpinner();
+
+        wakeTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DialogFragment newFragment  = new TimePickerFragment();
+                //newFragment.show(getActivity().getFragmentManager(), DIALOG_TIME);
+//                newFragment.show(getSupportFragmentManager(), DIALOG_TIME);
+                // if you are using the nested fragment then user the
+                //newFragment.show(getChildFragmentManager(), DIALOG_TIME);
+            }
+        });
+
         return view;
     }
 
@@ -57,32 +81,20 @@ public class SettingsFragment extends Fragment {
         numHours.setAdapter(adapter);
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SettingsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-//    public static SettingsFragment newInstance(String param1, String param2) {
-//        SettingsFragment fragment = new SettingsFragment();
-//        Bundle args = new Bundle();
-//        args.putString(ARG_PARAM1, param1);
-//        args.putString(ARG_PARAM2, param2);
-//        fragment.setArguments(args);
-//        return fragment;
-//    }
+//    public void setUpWakeTime(){
 //
-
-
-    // TODO: Rename method, update argument and hook method into UI event
-//    public void onButtonPressed(Uri uri) {
-//        if (mListener != null) {
-//            mListener.onFragmentInteraction(uri);
-//        }
+//        fragmentManager = getFragmentManager();
+//
+//
+//        wakeTime.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                DialogFragment newTime = new TimePickerFragment();
+//                newTime.show(getFragmentManager(), "timePicker");
+//            }
+//        });
 //    }
+
 //
 //    @Override
 //    public void onAttach(Context context) {
@@ -101,18 +113,5 @@ public class SettingsFragment extends Fragment {
 //        mListener = null;
 //    }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-//    public interface OnFragmentInteractionListener {
-//        // TODO: Update argument type and name
-//        void onFragmentInteraction(Uri uri);
-//    }
+
 }

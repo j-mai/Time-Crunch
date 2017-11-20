@@ -27,95 +27,21 @@
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginRight="132dp" />
 
-        <EditText
-            android:id="@+id/startDate"
-            android:layout_width="150dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="104dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="20dp"
-            android:editable="false"
-            android:ems="10"
-            android:hint="@string/startDate"
-            android:inputType="none"
-            android:onClick="showDatePickerDialog"
-            android:textIsSelectable="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/eventName"
-            android:layout_marginRight="104dp" />
-
-        <EditText
-            android:id="@+id/endDate"
-            android:layout_width="150dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="100dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="28dp"
-            android:editable="false"
-            android:ems="10"
-            android:hint="@string/endDate"
-            android:inputType="none"
-            android:onClick="showDatePickerDialog"
-            android:textIsSelectable="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/startDate" />
-
-        <TextView
-            android:id="@+id/from"
-            android:layout_width="50dp"
-            android:layout_height="43dp"
-            android:layout_marginBottom="346dp"
-            android:layout_marginTop="21dp"
-            android:gravity="start"
-            android:text="@string/from"
-            android:textAlignment="viewStart"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/startDate"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/eventName"
-            app:layout_constraintVertical_bias="0.0" />
-
-        <TextView
-            android:id="@+id/to"
-            android:layout_width="50dp"
-            android:layout_height="43dp"
-            android:layout_marginTop="24dp"
-            android:text="@string/to"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toStartOf="@+id/endDate"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/from" />
-
-        <Switch
-            android:id="@+id/repeat"
-            android:layout_width="147dp"
-            android:layout_height="39dp"
-            android:layout_marginRight="4dp"
-            android:layout_marginTop="196dp"
-            android:text="@string/repeat"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-
         <LinearLayout
+            android:id="@+id/setTaskType"
             android:layout_width="371dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="282dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginStart="4dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="@dimen/activity_vertical_margin"
+            android:layout_marginStart="0dp"
             android:layout_marginTop="11dp"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/to"
-            app:layout_constraintVertical_bias="0.104">
+            app:layout_constraintTop_toBottomOf="@+id/eventName"
+            app:layout_constraintVertical_bias="0.0">
 
             <TextView
                 android:id="@+id/taskType"
@@ -138,35 +64,175 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/setStartDate"
+            android:layout_width="match_parent"
+            android:layout_height="74dp"
+            android:paddingLeft="@dimen/activity_vertical_margin"
+            android:paddingRight="@dimen/activity_vertical_margin"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/setTaskType">
+
+            <TextView
+                android:id="@+id/from"
+                android:layout_width="50dp"
+                android:layout_height="43dp"
+                android:layout_marginBottom="346dp"
+                android:layout_marginTop="21dp"
+                android:layout_marginRight="16dp"
+                android:gravity="start"
+                android:text="@string/from"
+                android:textAlignment="viewStart"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/startDate"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <EditText
+                android:id="@+id/startDate"
+                android:layout_width="150dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="104dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="104dp"
+                android:layout_marginTop="20dp"
+                android:editable="false"
+                android:ems="10"
+                android:hint="@string/startDate"
+                android:inputType="none"
+                android:onClick="showDatePickerDialog"
+                android:textIsSelectable="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/setEndDate"
+            android:layout_width="match_parent"
+            android:layout_height="86dp"
+            android:orientation="horizontal"
+            android:paddingLeft="@dimen/activity_vertical_margin"
+            android:paddingRight="@dimen/activity_vertical_margin"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/setStartDate">
+
+            <TextView
+                android:id="@+id/to"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/to"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:gravity="center"
+
+                app:layout_constraintEnd_toStartOf="@+id/endDate"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/from" />
+
+            <EditText
+                android:id="@+id/endDate"
+                android:layout_width="150dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:editable="false"
+                android:ems="10"
+                android:hint="@string/endDate"
+                android:inputType="none"
+                android:onClick="showDatePickerDialog"
+                android:textIsSelectable="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/startDate"
+                android:layout_marginStart="16dp" />
+
+            <Switch
+                android:id="@+id/repeat"
+                android:gravity="center"
+                android:layout_width="147dp"
+                android:layout_height="39dp"
+                android:text="@string/repeat" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/setTPD"
             android:layout_width="409dp"
             android:layout_height="44dp"
-            android:layout_marginBottom="282dp"
             android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:layout_marginTop="11dp"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="parent"
-            app:layout_constraintVertical_bias="0.972">
+            app:layout_constraintTop_toBottomOf="@+id/setEndDate"
+            app:layout_constraintVertical_bias="0.037">
 
             <TextView
-                android:layout_width="137dp"
-                android:layout_height="31dp"
+                android:id="@+id/tpd"
+                android:layout_width="142dp"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="TextView" />
+                android:paddingEnd="@dimen/activity_vertical_margin"
+                android:paddingStart="@dimen/activity_vertical_margin"
+                android:text="@string/tpd"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/hours"
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/hours" />
 
             <EditText
-                android:id="@+id/editText2"
-                android:layout_width="wrap_content"
+                android:id="@+id/hr"
+                android:layout_width="75dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:ems="10"
+                android:inputType="number"
+                android:text="@string/defaultTime"
+                tools:layout_editor_absoluteX="109dp"
+                tools:layout_editor_absoluteY="297dp" />
+
+            <TextView
+                android:id="@+id/minutes"
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/min" />
+
+            <EditText
+                android:id="@+id/min"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
                 android:inputType="number"
+                android:paddingRight="@dimen/activity_vertical_margin"
+                android:text="@string/defaultTime"
                 tools:layout_editor_absoluteX="109dp"
                 tools:layout_editor_absoluteY="297dp" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/saveTask"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="46dp"
+            android:text="@string/save"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
 
 
     </android.support.constraint.ConstraintLayout>

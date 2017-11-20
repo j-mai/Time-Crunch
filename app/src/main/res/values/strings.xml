@@ -3,10 +3,13 @@
     <string name="title_activity_tab">activity_tab</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
-    <string name="tab_text_3">Tab 3</string>
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
+    <string name="save">SAVE</string>
 
+
+    //ToDo
+    <string name="todo">TO-DO: </string>
 
     //WelcomeActivity
     <string name="welcome">Welcome to</string>
@@ -20,6 +23,13 @@
     <string name="to">To: </string>
     <string name="repeat"> Repeat Forever</string>
     <string name="taskType"> Task Type:</string>
+    <string name="tpd">Total Time Per Day: </string>
+    <string name="hours">Hours: </string>
+    <string name="min">Minutes: </string>
+    <string name="defaultTime">0</string>
+
+
+
 
     <string-array name="chooseType">
         <item>Study</item>
