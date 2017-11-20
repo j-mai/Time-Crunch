@@ -234,21 +234,11 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
 
     //saves the task in shared preferences
     public void onSaveButtonClicked(View v){
-        Map<String, JSONObject> tasksMap;
 
         SharedPreferences sp = getSharedPreferences(TC_SHARED_PREF, 0);
 
         String tasks = sp.getString("tasksMap",null);
-        Gson gson = new Gson();
-
-        //If a values map already exists, set it equal to tasksMap variable
-        //else, create a new map
-        if (tasks != null){
-            java.lang.reflect.Type type = new TypeToken<HashMap<String, JSONObject>>(){}.getType();
-            tasksMap = gson.fromJson(tasks, type);
-        } else {
-            tasksMap = new HashMap<String, JSONObject>();
-        }
+        Map<String, JSONObject> tasksMap = Converter.spToMap(tasks);
 
         //If an event by this name already exists, check if they want it replaced
         if (tasksMap.containsKey(eventName.getText().toString())){
@@ -263,6 +253,7 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
         JSONObject saveTask = taskToJSON();
 
         //save this task using the event name as a key
+        Gson gson = new Gson();
         tasksMap.put(eventName.getText().toString(), saveTask);
         String tasksMapString = gson.toJson(tasksMap);
 

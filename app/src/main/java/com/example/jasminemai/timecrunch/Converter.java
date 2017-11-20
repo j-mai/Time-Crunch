@@ -42,4 +42,17 @@ public class Converter {
         }
         return tasksMap;
     }
+
+    /**
+     * pass in the string from shared preferences:
+     * String tasks = sp.getString("tasksMap",null);
+     *
+     * returns a HashMap that maps Strings to JSON Objects
+     * @param tasks
+     * @return tasksMap
+     */
+    public static String mapToSP(Map<String, JSONObject> taskMap){
+
+    }
+
 }
