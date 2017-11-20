@@ -1,13 +1,20 @@
 package com.example.jasminemai.timecrunch;
 
+import android.support.annotation.NonNull;
+
 import com.google.api.client.util.DateTime;
+
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+
+import java.time.format.DateTimeFormatter;
 
 /**
  * Created by jasminemai on 11/18/17.
  * Task class for creating task objects containing all of the information of each task
  */
 
-public class Task {
+public class Task implements Comparable<Task>{
     String startDate;
     String startTime;
     String endDate;
@@ -44,4 +51,11 @@ public class Task {
         this.endTime = endTime;
     }
 
+    @Override
+    public int compareTo(@NonNull Task o) {
+        org.joda.time.LocalDate currDate = new org.joda.time.LocalDate(LocalDate.parse(this.endDate));
+        org.joda.time.LocalDate otherDate = new org.joda.time.LocalDate(LocalDate.parse(o.endDate));
+
+        return currDate.compareTo(otherDate);
+    }
 }

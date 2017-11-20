@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -35,8 +36,8 @@ public class Converter {
      * @param tasks
      * @return tasksMap
      */
-    public static Map spToMap(String tasks){
-        Map<String, JSONObject> tasksMap;
+    public static HashMap<String, JSONObject> spToMap(String tasks){
+        HashMap<String, JSONObject> tasksMap;
 
         Gson gson = new Gson();
 
@@ -102,6 +103,7 @@ public class Converter {
             tasks.add(task);
             it.remove(); // avoids a ConcurrentModificationException
         }
+        Collections.sort(tasks);
         return tasks;
     }
 
