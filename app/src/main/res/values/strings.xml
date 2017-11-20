@@ -10,6 +10,9 @@
 
     //ToDo
     <string name="todo">TO-DO: </string>
+    <string name="scheduleMe">Schedule Me!!!</string>
+
+
 
     //WelcomeActivity
     <string name="welcome">Welcome to</string>
@@ -38,8 +41,6 @@
     <string name="subTitle">Would you like to replace it?</string>
     <string name="replace">REPLACE </string>
     <string name="cancel">CANCEL </string>
-
-
 
 
 

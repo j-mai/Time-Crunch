@@ -119,7 +119,7 @@ public class SettingsFragment extends Fragment {
                 defaultm1 = Integer.toString(wake.getMinuteOfHour());
             }
             Log.d("setDefaults", defaulth1);
-            
+
         }
         if (savedSleep != null) {
             LocalTime sleep = LocalTime.parse(savedSleep);
