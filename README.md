@@ -14,4 +14,16 @@ There is a button "Schedule Me!!!" in the Todo tab. When the user clicks this bu
 
 ## Limitations 
 We didn't have time to implement some of the functionality we had planned for. This includes the ability to edit tasks. 
-We also planned to allow the user to update their schedule (deleting all previous tasks for the day and reimplementing the schedule). 
+We also planned to allow the user to update their schedule (deleting all previous tasks for the day and reimplementing the schedule).
+
+## Using the Google Calendar API
+Since many android users are already logged into Google Calendar on their phones and use it daily, we thought it would be perfect to incorporate Google Calendar with this app. The Google Calendar API uses oAuth2.0 to authenticate users and have them sign into the app. There were many different sources on how to use 0Auth 2.0, and it was extremely confusing and frustrating for us because many of these sources were intended for web apps. We found a page on the [Google Identity Platform] (https://developers.google.com/identity/protocols/OAuth2InstalledApp) that recommended the [AuthApp Library for Android] (https://github.com/openid/AppAuth-Android). We lost a lot of time trying to make this library work. Eventually, we decided to scrap this route and directly use the Google Calendar API instead. 
+
+In order to properly run the app from the laptop, it may be necessary to create a Google Client ID in the Google API console, which is what we did. 
+
+
+## APIs and Libraries Used:
+  *Joda Time API
+  *Google Calendar API
+  *GSON Library
+
