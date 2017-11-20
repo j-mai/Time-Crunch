@@ -31,10 +31,10 @@ import java.util.TimeZone;
 public class CalendarFunctions {
 
     public static DateTime makeDate (String date, String time) {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
         date = date.replaceAll("\\s", "");
         time = time.replaceAll("\\s", "");
-        String dateToParse = date + " " + time;
+        String dateToParse = date + "T" + time;
         try {
             Date d = dateFormat.parse(dateToParse);
             DateTime dateTime = new DateTime(d, TimeZone.getDefault());

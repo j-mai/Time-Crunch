@@ -16,14 +16,16 @@ public class Task {
     String eventID;
     String description;
     String name;
+    int totalTime;
+    boolean breakUp;
 
-    public Task (String startDate, String startTime, String endDate, String endTime, String name, String type) {
+    public Task (String startDate, String endDate, String name, String type, int totalTime, boolean breakUp) {
         this.startDate = startDate;
         this.endDate = endDate;
-        this.startTime = startTime;
-        this.endTime = endTime;
         this.name = name;
         this.type = type;
+        this.totalTime = totalTime;
+        this.breakUp = breakUp;
     }
 
     public void setDescription(String description) {
@@ -32,6 +34,14 @@ public class Task {
 
     public void setEventID (String eventID) {
         this.eventID = eventID;
+    }
+
+    public void setStartTime (String startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime (String endTime) {
+        this.endTime = endTime;
     }
 
 }
