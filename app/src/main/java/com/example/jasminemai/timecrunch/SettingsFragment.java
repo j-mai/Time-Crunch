@@ -105,16 +105,36 @@ public class SettingsFragment extends Fragment {
         String desiredSleep = sp.getString("desiredSleep", null);
 
         if (savedWake != null) {
-            Log.d("setDefaults", savedWake);
             LocalTime wake = LocalTime.parse(savedWake);
-            defaulth1 = Integer.toString(wake.getHourOfDay());
-            defaultm2 = Integer.toString(wake.getMinuteOfHour());
-
+            int tempa = wake.getHourOfDay();
+            int tempb = wake.getMinuteOfHour();
+            if (tempa <10){
+                defaulth1 = "0"+ Integer.toString(tempa);
+            } else {
+                defaulth1 = Integer.toString(wake.getHourOfDay());
+            }
+            if (tempb <10){
+                defaultm1 = "0"+Integer.toString(tempb);
+            } else{
+                defaultm1 = Integer.toString(wake.getMinuteOfHour());
+            }
+            Log.d("setDefaults", defaulth1);
+            
         }
         if (savedSleep != null) {
             LocalTime sleep = LocalTime.parse(savedSleep);
-            defaulth2 = Integer.toString(sleep.getHourOfDay());
-            defaultm2 = Integer.toString(sleep.getMinuteOfHour());
+            int tempa = sleep.getHourOfDay();
+            int tempb = sleep.getMinuteOfHour();
+            if (tempa <10){
+                defaulth2 = "0"+ Integer.toString(tempa);
+            } else {
+                defaulth2 = Integer.toString(sleep.getHourOfDay());
+            }
+            if (tempb <10){
+                defaultm2 = "0"+Integer.toString(tempb);
+            } else{
+                defaultm2 = Integer.toString(sleep.getMinuteOfHour());
+            }
         }
         if (desiredSleep != null) {
             defaults = desiredSleep;
@@ -151,6 +171,7 @@ public class SettingsFragment extends Fragment {
         // Apply the adapter to the spinner
 
         String defaultVal = defaultValue; //the value you want the position for
+        Log.d("defaultValueWas", defaultVal);
         int spinnerPosition = adapter.getPosition(defaultVal);
 
         current.setAdapter(adapter);
