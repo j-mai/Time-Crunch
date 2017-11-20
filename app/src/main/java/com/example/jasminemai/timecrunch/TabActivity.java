@@ -41,6 +41,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -61,10 +62,13 @@ import com.google.api.services.calendar.model.Events;
 import com.google.api.services.calendar.model.FreeBusyRequest;
 import com.google.api.services.calendar.model.FreeBusyRequestItem;
 import com.google.api.services.calendar.model.FreeBusyResponse;
+import com.google.api.services.calendar.model.TimePeriod;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
+import org.joda.time.Interval;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.sql.Time;
@@ -75,6 +79,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -119,6 +124,8 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
     private static final String BUTTON_TEXT = "Call Google Calendar API";
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = { CalendarScopes.CALENDAR };
+
+    public static String TC_SHARED_PREF = "my_sharedpref";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -423,7 +430,7 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
          * @return List of Strings describing returned events.
          * @throws IOException
          */
-        private String getDataFromApi() throws IOException {
+        private String getDataFromApi() throws IOException, JSONException {
 
 //            Task task = new Task ("2017-11-19", "12:30:00", "2017-11-19",
 //                    "16:43:00", "Bio Studying", "studying");
@@ -441,27 +448,88 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
 //
 //            return response.getCalendars().get("primary").getBusy().get(0).toPrettyString();
 
-            Boolean check1 = TimeFunctions.bedTimeCalc("07:00:00","23:00:00");
-            publishProgress(10);
-            Log.d("timeFunction", "check1: " + check1);
-            Boolean check2 = TimeFunctions.bedTimeCalc("08:00:00", "02:00:00");
-            publishProgress(10);
-            Log.d("timeFunction", "check2: " + check2);
-            Boolean check3 = TimeFunctions.bedTimeCalc("07:53:00", "02:42:00");
-            publishProgress(10);
-            Log.d("timeFunction", "check3: " + check3);
-            Boolean check4 = TimeFunctions.bedTimeCalc("07:21:00", "02:50:00");
-            publishProgress(10);
-            Log.d("timeFunction", "check4: " + check4);
-            Boolean check5 = TimeFunctions.bedTimeCalc("02:00:00","23:15:00");
-            publishProgress(10);
-            Log.d("timeFunction", "check5: " + check5);
-            Boolean check6 = TimeFunctions.bedTimeCalc("08:00:00", "23:17:00");
-            publishProgress(10);
-            Log.d("timeFunction", "check6: " + check6);
-            Boolean check7 = TimeFunctions.bedTimeCalc("16:00:00", "11:15:00");
-            publishProgress(40);
-            return ("lastCheck is: " + check7);
+            String calendarId = "primary";
+            String startTestfreeTime = "06:00:00";
+            String endTestfreeTime = "23:45:00";
+
+            FreeBusyResponse fbResponse = CalendarFunctions.getFreeBusy(mService, "2017-11-20",
+                    "06:00:00", "2017-11-20", "23:30:00", calendarId);
+
+            List <TimePeriod> busyTimes;
+            List<Interval> freeTimes;
+
+            if ((fbResponse.getGroups() != null && fbResponse.getGroups().get(calendarId).getErrors()
+                    != null) || fbResponse.getCalendars().get(calendarId).getErrors() != null) {
+                Log.w("freeBusy Error", "could not get free busy");
+                Log.w("freeBusy Error", fbResponse.toPrettyString());
+                return null;
+            } else {
+                Log.d("FreeBusy", "gotBusy!");
+                busyTimes = fbResponse.getCalendars().get(calendarId).getBusy();
+                freeTimes = TimeFunctions.getFreeTimes(startTestfreeTime, endTestfreeTime,
+                        busyTimes);
+            }
+
+            if (freeTimes != null) {
+                SharedPreferences taskSP = getSharedPreferences(TC_SHARED_PREF, Context.MODE_PRIVATE);
+                String task = taskSP.getString("tasksMap", "");
+                if (!task.equals("")) {
+                    Map<String, JSONObject> tasksAsJSON = Converter.spToMap(task);
+
+                    for (String tasktask : tasksAsJSON.keySet()) {
+                        Log.d("looking at saved", tasksAsJSON.get(tasktask).getString("name") +
+                                tasksAsJSON.get(tasktask).getInt("totalTime"));
+                    }
+                    Map<String, ArrayList<Task>> tempMap = Converter.createSplitUpMap(tasksAsJSON);
+
+                    if (TimeFunctions.totalFreeTime(freeTimes) < TimeFunctions.totalTaskTimeReq(tasksAsJSON)) {
+                        Toast.makeText(getApplicationContext(), "You don't have enough free time to do everything", Toast.LENGTH_LONG).show();
+                    } else {
+
+                        for (String key: tempMap.keySet()) {
+                            for (Task task1: tempMap.get(key)) {
+                                Log.d(key, task1.type + task1.name + task1.totalTime);
+                            }
+                        }
+//                        return tempMap.toString();
+
+                        boolean overHourTask = true;
+
+                        while (overHourTask) {
+                            Interval largestFreeTime = TimeFunctions.getLargestTimeBlock(freeTimes);
+                            Task longestTask = TimeFunctions.getLongestTaskBlock(tasksAsJSON);
+
+                            if (longestTask.totalTime > 60) {
+                                if (longestTask.totalTime <= largestFreeTime.toDuration().getStandardMinutes()) {
+                                    int index = TimeFunctions.getLargestTimeBlockIndex(freeTimes);
+                                    org.joda.time.DateTime startDT = org.joda.time.DateTime.parse(largestFreeTime.getStart().toString());
+                                    org.joda.time.DateTime endDT = startDT.plusMinutes(longestTask.totalTime);
+
+                                    Interval newTaskInterval = new Interval(startDT, endDT);
+
+                                    Interval newFreeInterval = TimeFunctions.decreaseIntervalFromHead(largestFreeTime, newTaskInterval);
+
+                                    if (newFreeInterval.toDuration().getStandardMinutes() > 0) {
+                                        freeTimes.set(index, newFreeInterval);
+                                    } else {
+                                        freeTimes.remove(index);
+                                    }
+
+                                    longestTask.setStartTime(newTaskInterval.getStart().toString());
+
+                                }
+                            } else {
+                                overHourTask = false;
+                            }
+                        }
+
+                    }
+
+                }
+            } else {
+                Log.w("test", "freeTimes is null");
+            }
+            return null;
         }
 
         @Override

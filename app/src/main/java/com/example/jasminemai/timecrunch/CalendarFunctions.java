@@ -133,15 +133,16 @@ public class CalendarFunctions {
     //function to delete an event from a calendar
     public static Boolean deleteEvent (Task task, Calendar calendar, String calendarId) throws IOException {
         if (task != null && task.eventID != null) {
-            if (calendar.events().delete(calendarId, task.eventID).execute() == null) {
-                return true;
-            } else {
-                Log.e("deleteEvent failed", (calendar.events().delete(calendarId,
-                        task.eventID).execute()).toString());
-                return false;
+            for (String eventID : task.eventID) {
+                if (calendar.events().delete(calendarId, eventID).execute() == null) {
+                    return true;
+                } else {
+                    Log.e("deleteEvent failed", (calendar.events().delete(calendarId,
+                            eventID).execute()).toString());
+                    return false;
+                }
             }
-//            return (calendar.events().delete(calendarId, task.eventID).execute()).toString();
-
+            
         } else if (task == null) {
             Log.w("deleteEvent", "task is null");
         } else if (task.eventID == null) {

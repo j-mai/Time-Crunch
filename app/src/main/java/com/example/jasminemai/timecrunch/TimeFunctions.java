@@ -228,7 +228,7 @@ public class TimeFunctions {
     }
 
     //total time that tasks require
-    public static int totalTaskTimeReq (HashMap<String, JSONObject> hashMap) {
+    public static int totalTaskTimeReq (Map<String, JSONObject> hashMap) {
 
         int totalTime = 0;
         for (String key : hashMap.keySet()) {
