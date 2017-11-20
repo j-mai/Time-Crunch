@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -167,6 +168,7 @@ public class TimeFunctions {
         return minutes;
     }
 
+    //get largest free time block
     public static Interval getLargestTimeBlock (List<Interval> freeTimes) {
 
         Interval biggest = freeTimes.get(0);
@@ -180,6 +182,7 @@ public class TimeFunctions {
         return biggest;
     }
 
+    //get largest time block's index in list
     public static int getLargestTimeBlockIndex (List<Interval> freeTimes) {
 
         int biggest = 0;
@@ -194,6 +197,26 @@ public class TimeFunctions {
         return biggest;
     }
 
+    //get longest Task Block
+    public static Task getLongestTaskBlock (Map<String, JSONObject> taskMapfromSP) {
+
+        Task longest = null;
+
+        for (String key : taskMapfromSP.keySet()) {
+            if (longest == null) {
+                longest = Converter.jsonToTask(taskMapfromSP.get(key));
+            } else {
+                if (longest.totalTime < Converter.jsonToTask(taskMapfromSP.get(key)).totalTime) {
+                    longest = Converter.jsonToTask(taskMapfromSP.get(key));
+                }
+            }
+        }
+
+        return longest;
+
+    }
+
+    //subtract from Intervals, for decreasing free periods
     public static Interval decreaseIntervalFromHead (Interval bigInterval, Interval smallInterval) {
 
         Interval overlap = bigInterval.overlap(smallInterval);
@@ -204,7 +227,7 @@ public class TimeFunctions {
 
     }
 
-
+    //total time that tasks require
     public static int totalTaskTimeReq (HashMap<String, JSONObject> hashMap) {
 
         int totalTime = 0;
@@ -222,6 +245,7 @@ public class TimeFunctions {
         return totalTime;
     }
 
+    //split up splittable tasks into various 1 hour tasks
     public static ArrayList<Task> splitUpTask (Task task) {
 
         ArrayList<Task> splitUp = new ArrayList<>();
@@ -240,4 +264,6 @@ public class TimeFunctions {
 
         return splitUp;
     }
+
+
 }

@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -104,36 +105,36 @@ public class Converter {
         return tasks;
     }
 
-//    public static Map createSplitUpMap(Map <String, JSONObject> tasks) {
-//
-//        Map<String, ArrayList<Task>> tempMap = new HashMap<String, ArrayList<Task>>();
-//
-//        tempMap.put("Study", new ArrayList<Task>());
-//        tempMap.put("Other", new ArrayList<Task>());
-//        tempMap.put("Exercise", new ArrayList<Task>());
-//
-//        for (String key : tasks.keySet()) {
-//            Task task = jsonToTask(tasks.get(key));
-//
-//            if (task.type.equals("Study"))
-//
-//        }
-//
-//    }
+    //create map of task type to split up tasks
+    public static Map createSplitUpMap(Map <String, JSONObject> tasks) {
+
+        Map<String, ArrayList<Task>> tempMap = new HashMap<String, ArrayList<Task>>();
+
+        tempMap.put("Study", new ArrayList<Task>());
+        tempMap.put("Other", new ArrayList<Task>());
+        tempMap.put("Exercise", new ArrayList<Task>());
+
+        for (String key : tasks.keySet()) {
+            Task task = jsonToTask(tasks.get(key));
+            String taskType = task.type;
+
+            if (task.breakUp) {
+                ArrayList<Task> tasksArray = TimeFunctions.splitUpTask(task);
+
+                for (Task eachTask : tasksArray) {
+                    tempMap.get(taskType).add(eachTask);
+                }
 
 
-//    public static Map spToTempMap(String tasks) {
-//
-//        Map<String, JSONObject> taskMap = spToMap(tasks);
-//
-//        Map<String, ArrayList<Task>> tempMap = new HashMap<String, ArrayList<Task>>();
-//
-//        tempMap.put("Study", new ArrayList<Task>());
-//        tempMap.put("Other", new ArrayList<Task>());
-//        tempMap.put("Exercise", new ArrayList<Task>());
-//
-//        for (String key : taskMap.keySet()) {
-//
-//        }
-//    }
+            } else {
+                tempMap.get(taskType).add(task);
+
+            }
+
+        }
+
+        return tempMap;
+
+    }
+
 }
