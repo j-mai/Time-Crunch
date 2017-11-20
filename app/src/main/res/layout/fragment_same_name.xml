@@ -1,0 +1,37 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center">
+    <!--
+
+         android:inputType textEmailAddress & textPassword result
+                   in Google's suggestions to autofill save these
+
+                android:inputType="textEmailAddress"
+                android:inputType="textPassword"
+
+                android:hint="Password"  also causes auto-fill to pop up!
+
+    -->
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/retypePassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:title="@string/sameName" />
+
+
+    <!--
+
+        This layout is inflated and fed into an AlertDialog.Builder .
+            This builder will add the "OK" and "Cancel" buttons.
+
+    -->
+</LinearLayout>

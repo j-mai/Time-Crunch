@@ -27,6 +27,17 @@
     <string name="hours">Hours: </string>
     <string name="min">Minutes: </string>
     <string name="defaultTime">0</string>
+    <string name="blockTime">Don\'t Break Up This Task </string>
+    <string name="date">%1$d-%1$d-%1$d</string>
+
+
+
+
+    //SameNameFragment
+    <string name="sameName">A task with this name already exists. Would you like to replace it?</string>
+    <string name="replace">REPLACE </string>
+    <string name="cancel">CANCEL </string>
+
 
 
 
@@ -51,9 +62,6 @@
         <item>9</item>
         <item>10</item>
     </string-array>
-
-
-
 
 
     <!-- TODO: Remove or change this placeholder text -->

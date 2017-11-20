@@ -9,13 +9,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.ToggleButton;
-
+import org.json.JSONException;
+import org.json.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -24,14 +26,22 @@ import com.google.common.reflect.TypeToken;
 import java.util.HashMap;
 import java.util.Map;
 
-public class NewTask extends FragmentActivity implements DatePickerDialog.OnDateSetListener {
+public class NewTask extends FragmentActivity implements DatePickerDialog.OnDateSetListener, SameNameFragment.DialogListener {
 
+    private SameNameFragment sameNameFrag;
     public static String TC_SHARED_PREF = "my_sharedpref";
+    boolean replace = false;
 
+    EditText eventName;
+    Spinner chooseType;
     EditText currentDatePicked = null;
     EditText endDate;
     Switch repeat;
-    Spinner chooseType;
+    EditText hours;
+    EditText minutes;
+    CheckBox dontBreak;
+
+    JSONObject saveTask;
 
 
     //Create the New Task
@@ -39,13 +49,21 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_task);
+        initializeVariables();
 
-        //initialize variables
+        onRepeatClicked();
+        setupSpinner();
+    }
+
+    //Initialize each editable value in the new task
+    protected void initializeVariables(){
+        eventName = findViewById(R.id.eventName);
         endDate = (EditText) findViewById((R.id.endDate));
         repeat = ((Switch) findViewById(R.id.repeat));
         chooseType = (Spinner) findViewById(R.id.chooseTask);
-        onRepeatClicked();
-        setupSpinner();
+        hours = (EditText) findViewById(R.id.hr);
+        minutes = (EditText) findViewById(R.id.min);
+        dontBreak = (CheckBox) findViewById(R.id.breakUp);
     }
 
     //Called when the start or the end date is picked
@@ -81,7 +99,7 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
             {
                 //This Even repeats each day
                 if (isChecked){
-                    endDate.setText("Forever");
+                    endDate.setText("None");
                     endDate.setTextIsSelectable(false);
                 }
                 //Allow user to set an end date
@@ -105,10 +123,11 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
 
     //saves the task in shared preferences
     public void onSaveButtonClicked(View v){
+        String eventString = eventName.getText().toString();
+
         Map<String, String> tasksMap;
 
         SharedPreferences sp = getSharedPreferences(TC_SHARED_PREF, 0);
-        SharedPreferences.Editor editor = sp.edit();
 
         String tasks = sp.getString("tasksMap",null);
         Gson gson = new Gson();
@@ -122,9 +141,48 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
             tasksMap = new HashMap<String, String>();
         }
 
+        //If an event by this name already exists, check if they want it replaced
+        if (tasksMap.containsKey(eventName)){
+            showDialog();
+            if (! replace){
+                return;
+            }
+        }
+
+        //Save all objects inside JSON
+        saveTask = new JSONObject();
+        try {
+            saveTask.put("event", eventString);
+
+
+
+        } catch (JSONException e) {
+            Log.d("JSON", e.toString());
+        }
+
+
+        SharedPreferences.Editor editor = sp.edit();
+
 
         editor.commit();
     }
 
+    //open sameName Dialog
+    public void showDialog() {
+        // Create an instance of the dialog fragment and show it
+        sameNameFrag = new SameNameFragment();
+        sameNameFrag.show(getFragmentManager(), "SameNameFragment");
+    }
 
+    //user wants to replace task with new one
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog, String password) {
+        replace = true;
+    }
+
+    //user wants to cancel
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+        replace = false;
+    }
 }
