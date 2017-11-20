@@ -64,9 +64,9 @@ public class Task implements Comparable<Task>{
     @Override
     public int compareTo(@NonNull Task o) {
         if (this.endDate.equals("None") || this.endDate.equals("")){
-            return -1;
-        } else if (o.endDate.equals("None") || o.endDate.equals("")){
             return 1;
+        } else if (o.endDate.equals("None") || o.endDate.equals("")){
+            return -1;
         }
         org.joda.time.LocalDate currDate = new org.joda.time.LocalDate(LocalDate.parse(this.endDate));
         org.joda.time.LocalDate otherDate = new org.joda.time.LocalDate(LocalDate.parse(o.endDate));

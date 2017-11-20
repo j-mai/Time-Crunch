@@ -185,28 +185,28 @@ public class CalendarFunctions {
 
     }
 
-    //function to delete an event from a calendar
-    public static Boolean deleteEvent (Task task, Calendar calendar, String calendarId) throws IOException {
-        if (task != null && task.eventID != null) {
-            for (String eventID : task.eventID) {
-                if (calendar.events().delete(calendarId, eventID).execute() == null) {
-                    return true;
-                } else {
-                    Log.e("deleteEvent failed", (calendar.events().delete(calendarId,
-                            eventID).execute()).toString());
-                    return false;
-                }
-            }
-
-        } else if (task == null) {
-            Log.w("deleteEvent", "task is null");
-        } else if (task.eventID == null) {
-            Log.w("deleteEvent", "task eventID is null");
-
-        }
-
-        return false;
-    }
+//    //function to delete an event from a calendar
+//    public static Boolean deleteEvent (Task task, Calendar calendar, String calendarId) throws IOException {
+//        if (task != null && task.eventID != null) {
+//            for (String eventID : task.eventID) {
+//                if (calendar.events().delete(calendarId, eventID).execute() == null) {
+//                    return true;
+//                } else {
+//                    Log.e("deleteEvent failed", (calendar.events().delete(calendarId,
+//                            eventID).execute()).toString());
+//                    return false;
+//                }
+//            }
+//
+//        } else if (task == null) {
+//            Log.w("deleteEvent", "task is null");
+//        } else if (task.eventID == null) {
+//            Log.w("deleteEvent", "task eventID is null");
+//
+//        }
+//
+//        return false;
+//    }
 
     public static List<TimePeriod> getBusy (FreeBusyResponse response, String calendarId) {
 

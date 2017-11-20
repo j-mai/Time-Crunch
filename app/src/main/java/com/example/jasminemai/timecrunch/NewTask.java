@@ -100,6 +100,7 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
 
         String currDate = String.format(getResources().getString(R.string.date), currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth());
         startDate.setText(currDate);
+        endDate.setText(currDate);
     }
 
     //Called when the start or the end date is picked
@@ -331,5 +332,10 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
         }
 
         return super.dispatchTouchEvent(event);
+    }
+
+    public void onCancelClicked(View v){
+        Intent todoIntent = new Intent(this, TabActivity.class);
+        startActivity(todoIntent);
     }
 }

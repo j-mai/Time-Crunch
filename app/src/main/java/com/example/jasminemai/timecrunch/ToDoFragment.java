@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -121,11 +122,15 @@ public class ToDoFragment extends Fragment {
             //Create variables for each thing in the todo_item layout
             TextView eventName = convertView.findViewById(R.id.event);
             TextView fromTime = convertView.findViewById(R.id.start);
-            TextView toTime = convertView.findViewById(R.id.end);
+            ImageButton delete = convertView.findViewById(R.id.delete);
+            //delete.setImageDrawable(getResources().getDrawable(R.drawable.delete));
 
             eventName.setText(myTask.name);
-            fromTime.setText(myTask.startDate);
-            toTime.setText(myTask.endDate);
+            String end = " to " + myTask.endDate;
+            if (myTask.endDate.equals("")){
+                end = "...";
+            }
+            fromTime.setText(myTask.startDate + end);
             return convertView;
         }
     }
