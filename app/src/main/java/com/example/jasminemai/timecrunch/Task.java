@@ -8,6 +8,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 /**
  * Created by jasminemai on 11/18/17.
@@ -20,7 +21,7 @@ public class Task implements Comparable<Task>{
     String endDate;
     String endTime;
     String type;
-    String eventID;
+    ArrayList<String> eventID;
     String description;
     String name;
     int totalTime;
@@ -33,14 +34,15 @@ public class Task implements Comparable<Task>{
         this.type = type;
         this.totalTime = totalTime;
         this.breakUp = breakUp;
+        this.eventID = new ArrayList<String>();
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public void setEventID (String eventID) {
-        this.eventID = eventID;
+    public void addEventID (String eventID) {
+        this.eventID.add(eventID);
     }
 
     public void setStartTime (String startTime) {

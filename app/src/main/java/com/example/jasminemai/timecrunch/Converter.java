@@ -66,8 +66,8 @@ public class Converter {
         return tasksMapString;
     }
 
-    //Takes 6 strings and returns them in a JSON Object
-    public static JSONObject stringsToJSON(String event, String type, String from, String to, String time, Boolean breakBool){
+    //Takes 6 strings and a bool and returns them in a JSON Object
+    public static JSONObject stringsToJSON(String event, String type, String from, String to, String time, String eventIDArray, Boolean breakBool){
         JSONObject newJson = new JSONObject();
         try {
             newJson.put("name", event);
@@ -76,6 +76,7 @@ public class Converter {
             newJson.put("endDate", to);
             newJson.put("totalTime", time);
             newJson.put("breakUp", breakBool);
+            newJson.put("eventID", eventIDArray);
 
         } catch (JSONException e) {
             Log.d("JSON", e.toString());

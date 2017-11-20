@@ -6,6 +6,7 @@ import android.app.DialogFragment;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import android.content.Context;
@@ -284,10 +285,11 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
         String fromString = startDate.getText().toString();
         String toString = endDate.getText().toString();
         Boolean breakBool = dontBreak.isChecked();
-
+        ArrayList <String> eventIDs = new ArrayList<String>();
+        String eventIDString = eventIDs.toString();
 
         //Save all objects inside JSON
-        saveTask = Converter.stringsToJSON(eventString, typeString, fromString, toString, timeString, !breakBool);
+        saveTask = Converter.stringsToJSON(eventString, typeString, fromString, toString, timeString, eventIDString, !breakBool);
         return saveTask;
     }
 
