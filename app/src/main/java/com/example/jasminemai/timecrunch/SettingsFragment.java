@@ -2,6 +2,7 @@ package com.example.jasminemai.timecrunch;
 
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,6 +14,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
+
+import java.sql.Time;
 
 
 /**
@@ -22,19 +26,20 @@ import android.widget.Spinner;
  * create an instance of this fragment.
  */
 public class SettingsFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    public static String TC_SHARED_PREF = "my_sharedpref";
 
     int REQUEST_CODE = 0;
     private static final String DIALOG_TIME = "date";
 
+    TextView wake;
+    TextView bed;
     Spinner numHours;
+    Spinner allHoursWake;
+    Spinner allMinWake;
+    Spinner allHoursSleep;
+    Spinner allMinSleep;
+    Button saveSettings;
+
     EditText wakeTime;
 
     android.support.v4.app.FragmentManager fragmentManager;
@@ -52,22 +57,35 @@ public class SettingsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
         numHours = (Spinner) view.findViewById(R.id.selectSleep);
-        wakeTime = (EditText) view.findViewById(R.id.wakeTime);
-        setupSpinner();
+        allHoursWake = view.findViewById(R.id.hoursWake);
+        allMinWake = view.findViewById(R.id.minWake);
+        allHoursSleep = view.findViewById(R.id.hoursSleep);
+        allMinSleep = view.findViewById(R.id.minutesSleep);
+        saveSettings = view.findViewById(R.id.saveSettings);
+        wake = view.findViewById(R.id.wake);
+        bed = view.findViewById(R.id.bed);
 
-        wakeTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DialogFragment newFragment  = new TimePickerFragment();
-                //newFragment.show(getActivity().getFragmentManager(), DIALOG_TIME);
-//                newFragment.show(getSupportFragmentManager(), DIALOG_TIME);
-                // if you are using the nested fragment then user the
-                //newFragment.show(getChildFragmentManager(), DIALOG_TIME);
-            }
-        });
+        //wakeTime = (EditText) view.findViewById(R.id.wakeTime);
+        setupSpinner();
+        setupHourSpinner(allHoursWake);
+        setupHourSpinner(allHoursSleep);
+        setupMinSpinner(allMinWake);
+        setupMinSpinner(allMinSleep);
+
+        setSaveButtonListener();
 
         return view;
     }
+//
+//    public void setSavedSpinners(){
+//        SharedPreferences sp = getActivity().getSharedPreferences(TC_SHARED_PREF, 0);
+//
+//        String savedWake = sp.getString("wakeTime", null);
+//        String savedSleep = sp.getString("bedTime", null);
+//        if (savedWake != null){
+//
+//        }
+//    }
 
     //sets up the spinner with the different amount of hours of sleep
     public void setupSpinner(){
@@ -88,19 +106,65 @@ public class SettingsFragment extends Fragment {
         numHours.setSelection(spinnerPosition);
     }
 
-//    public void setUpWakeTime(){
-//
-//        fragmentManager = getFragmentManager();
-//
-//
-//        wakeTime.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                DialogFragment newTime = new TimePickerFragment();
-//                newTime.show(getFragmentManager(), "timePicker");
-//            }
-//        });
-//    }
+    //sets up the spinner with the different amount of hours of sleep
+    public void setupHourSpinner(Spinner current){
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this.getActivity(),
+                R.array.allHours, android.R.layout.simple_spinner_item);
+//        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this.getActivity(),
+//                R.array.sleepHours, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+
+        String defaultVal = "00"; //the value you want the position for
+        int spinnerPosition = adapter.getPosition(defaultVal);
+
+        current.setAdapter(adapter);
+
+        //set the default according to value
+        current.setSelection(spinnerPosition);
+        bed.setError(null);
+    }
+
+    //sets up the spinner with the different amount of min of sleep
+    public void setupMinSpinner(Spinner current){
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this.getActivity(),
+                R.array.allMin, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+
+        String defaultVal = "00"; //the value you want the position for
+        int spinnerPosition = adapter.getPosition(defaultVal);
+
+        current.setAdapter(adapter);
+
+        //set the default according to value
+        current.setSelection(spinnerPosition);
+        bed.setError(null);
+    }
+
+    public void setSaveButtonListener(){
+        final String wakeTime = allHoursWake.getSelectedItem().toString() + ":" + allMinWake.getSelectedItem().toString()+":00";
+        final String sleepTime = allHoursSleep.getSelectedItem().toString() + ":" + allMinSleep.getSelectedItem().toString()+ ":00";
+
+        saveSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!TimeFunctions.bedTimeCalc(wakeTime, sleepTime)){
+                    bed.setError("Must sleep at least 6 hours before waking");
+                    return;
+                } else{
+                    SharedPreferences sp = getActivity().getSharedPreferences(TC_SHARED_PREF, 0);
+                    SharedPreferences.Editor editor = sp.edit();
+                    editor.putString("wakeTime", wakeTime);
+                    editor.putString("bedTime", sleepTime);
+                    editor.apply();
+                }
+            }
+        });
+    }
+
 
 //
 //    @Override

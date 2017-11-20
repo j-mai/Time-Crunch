@@ -22,26 +22,35 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="40dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingBottom="40dp">
 
                 <TextView
                     android:id="@+id/wake"
-                    android:layout_width="50dp"
+                    android:layout_width="30dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/wakeTime"
                     android:textSize="24sp" />
 
-                <EditText
-                    android:id="@+id/wakeTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="75dp"
+                <Spinner
+                    android:id="@+id/hoursWake"
+                    android:layout_width="1dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/colon"
+                    android:layout_width="1dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:clickable="true"
-                    android:ems="10"
-                    android:focusable="true"
-                    android:inputType="time" />
+                    android:text=" : " />
+
+                <Spinner
+                    android:id="@+id/minWake"
+                    android:layout_width="2dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
 
 
             </LinearLayout>
@@ -54,19 +63,30 @@
 
                 <TextView
                     android:id="@+id/bed"
-                    android:layout_width="wrap_content"
+                    android:layout_width="12dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/bedtime"
                     android:textSize="24sp" />
 
-                <EditText
-                    android:id="@+id/bedTime"
-                    android:layout_width="wrap_content"
+                <Spinner
+                    android:id="@+id/hoursSleep"
+                    android:layout_width="8dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/colon2"
+                    android:layout_width="1dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:ems="10"
-                    android:inputType="time" />
+                    android:text=" : " />
+
+                <Spinner
+                    android:id="@+id/minutesSleep"
+                    android:layout_width="2dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
 
 
             </LinearLayout>
@@ -94,11 +114,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="100dp">
+
                 <Button
                     android:id="@+id/saveSettings"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/save" />
+                    android:text="@string/save"
+                    />
             </LinearLayout>
         </LinearLayout>
 
