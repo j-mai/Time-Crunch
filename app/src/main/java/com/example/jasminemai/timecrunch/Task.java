@@ -31,6 +31,7 @@ public class Task implements Comparable<Task>{
     int totalTime;
     boolean breakUp;
 
+    //constructor for a Task object
     public Task (String startDate, String endDate, String name, String type, int totalTime, boolean breakUp) {
         this.startDate = startDate;
         this.endDate = endDate;

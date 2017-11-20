@@ -403,6 +403,7 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                     transport, jsonFactory, credential)
                     .setApplicationName("Time Crunch")
                     .build();
+
         }
 
         /**
@@ -483,7 +484,7 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                         while (overHourTask) {
                             //get the largest schedule block and fit it into the largest time block
                             Interval largestFreeTime = TimeFunctions.getLargestTimeBlock(freeTimes);
-                            final Task longestTask = TimeFunctions.getLongestTaskBlock(tempMap);
+                            Task longestTask = TimeFunctions.getLongestTaskBlock(tempMap);
 
                             if (longestTask == null) {
                                 overHourTask = false;

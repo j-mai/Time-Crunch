@@ -26,6 +26,7 @@ import java.util.TimeZone;
 
 /**
  * Created by jasminemai on 11/18/17.
+ * This class contains functions to connect to the Google Calendar API
  */
 
 public class CalendarFunctions {
@@ -47,9 +48,11 @@ public class CalendarFunctions {
     }
 
     //function to return the freeBusy sections of a user's calendar
+    //valid response gives back the busy sections of a user's calendar
     public static FreeBusyResponse getFreeBusy(Calendar calendar, String startDate, String startTime,
                                         String endDate, String endTime, String calendarId) throws IOException, UserRecoverableAuthIOException {
 
+        //create DateTime objects for the starting and ending times
         DateTime startDateTime = makeDate(startDate, startTime);
         DateTime endDateTime = makeDate(endDate, endTime);
 
@@ -73,34 +76,15 @@ public class CalendarFunctions {
             FreeBusyResponse fbResponse = fbQuery.execute();
             return fbResponse;
 
-//            try {
-//
-//
-//            } catch (UserRecoverableAuthIOException exception) {
-//                //TODO: fix signing in from another account, changing accounts, signing out
-//                startActivityForResult(exception.getIntent(), REQUEST_AUTHORIZATION);
-//                Log.w("freeBusy error", exception.toString());
-//                return null;
-//            } catch (IOException exception) {
-//                Log.w("freeBusy error", exception.toString());
-//                return null;
-//            }
-//
-//        } else {
-//            Log.d("getFreeBusy", "either startDateTime or endDateTime is null," +
-//                    "check parsing/conversion");
-//            return null;
-//        }
-
 
         } else {
-            Log.d("getFreeBusy", "either startDateTime or endDateTime is null," +
+            Log.w("getFreeBusy", "either startDateTime or endDateTime is null," +
                     "check parsing/conversion");
             return null;
         }
     }
 
-    //function to add event to calendar - already proper format
+    //function to add event to calendar - already proper format, so no need to add Date and parse it
     public static Event addEventProperFormat(Task task, Calendar calendar, String calendarId) throws IOException{
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
@@ -112,6 +96,7 @@ public class CalendarFunctions {
             event.setDescription(task.description);
         }
 
+        //try creating a new DateTime from parsing into the correct format
         DateTime startDateTime = null;
         try {
             Date d = dateFormat.parse(task.startTime);
@@ -148,13 +133,14 @@ public class CalendarFunctions {
             event.setEnd(end);
         }
 
+        //send a request to Google API to insert event into calendar
         event = calendar.events().insert(calendarId, event).execute();
 
         return event;
 
     }
 
-    //function to add event to calendar
+    //function to add event to calendar - used if the there is not time in the time string
     public static Event addEvent(Task task, Calendar calendar, String calendarId) throws IOException{
 
         Event event = new Event()

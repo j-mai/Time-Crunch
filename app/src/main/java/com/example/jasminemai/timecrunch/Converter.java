@@ -23,6 +23,7 @@ import com.google.gson.GsonBuilder;
 
 /**
  * Created by michelle on 11/20/17.
+ * Here is where a lot of conversion between strings and data structures happen
  */
 
 public class Converter {
