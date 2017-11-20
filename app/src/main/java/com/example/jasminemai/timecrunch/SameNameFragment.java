@@ -60,9 +60,6 @@ public class SameNameFragment extends DialogFragment {
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
-        firstPass = getArguments().getString("first password");
-        Log.d("tracking first pass", getFirstPass());
-
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
         //   "final" is important for the closure to be created in the inner class

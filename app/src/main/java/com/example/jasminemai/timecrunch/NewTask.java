@@ -2,12 +2,24 @@ package com.example.jasminemai.timecrunch;
 
 import android.app.DatePickerDialog;
 import android.app.DialogFragment;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Calendar;
+
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Rect;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -16,6 +28,9 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.ToggleButton;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.google.gson.Gson;
@@ -23,8 +38,10 @@ import com.google.gson.GsonBuilder;
 
 import com.google.common.reflect.TypeToken;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
 
 public class NewTask extends FragmentActivity implements DatePickerDialog.OnDateSetListener, SameNameFragment.DialogListener {
 
@@ -32,6 +49,10 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
     public static String TC_SHARED_PREF = "my_sharedpref";
     boolean replace = false;
 
+    org.joda.time.LocalDate currentDate = new org.joda.time.LocalDate(DateTimeZone.getDefault());
+    org.joda.time.LocalDate start = currentDate;
+    org.joda.time.LocalDate end = currentDate;
+    EditText startDate;
     EditText eventName;
     Spinner chooseType;
     EditText currentDatePicked = null;
@@ -43,6 +64,8 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
 
     JSONObject saveTask;
 
+    int hoursTotal;
+    int minTotal;
 
     //Create the New Task
     @Override
@@ -52,6 +75,8 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
         initializeVariables();
 
         onRepeatClicked();
+        onHoursSet();
+        onMinutesSet();
         setupSpinner();
     }
 
@@ -59,11 +84,15 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
     protected void initializeVariables(){
         eventName = findViewById(R.id.eventName);
         endDate = (EditText) findViewById((R.id.endDate));
+        startDate = (EditText) findViewById(R.id.startDate);
         repeat = ((Switch) findViewById(R.id.repeat));
         chooseType = (Spinner) findViewById(R.id.chooseTask);
         hours = (EditText) findViewById(R.id.hr);
         minutes = (EditText) findViewById(R.id.min);
         dontBreak = (CheckBox) findViewById(R.id.breakUp);
+
+        String currDate = String.format(getResources().getString(R.string.date), currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth());
+        startDate.setText(currDate);
     }
 
     //Called when the start or the end date is picked
@@ -86,10 +115,34 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
     //Once they pick a date, change the EditText to reflect their selection
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-        Log.w("DatePicker", "year = " + year);
-        //String date = String.format(getResources().getString(R.string.date), year, month, dayOfMonth);
-        String date = String.format(getResources().getString(R.string.date), year, month, dayOfMonth);
-        currentDatePicked.setText(date);
+        Log.w("DatePicker", "a date has been set");
+        //convert the set date to a string
+        String date = String.format(getResources().getString(R.string.date), year, (month + 1), dayOfMonth);
+        org.joda.time.LocalDate setDate = new org.joda.time.LocalDate(year, (month +1), dayOfMonth);
+
+        //if they are setting the endDate, make sure it is valid
+        if (currentDatePicked.equals(endDate)){
+            //check if the date is before the current date
+            if (setDate.isBefore(currentDate)){
+                endDate.setError("End Date must be after current date");
+                endDate.setText("");
+                return;
+            }
+            end = setDate;
+
+        } else {
+            start = setDate;
+        }
+
+        //the end date must be after the start
+        if (end.isBefore(start)){
+            endDate.setError("End Date must be after start date");
+            endDate.setText("");
+        }else{
+            currentDatePicked.setError(null);
+            currentDatePicked.setText(date);
+        }
+
     }
 
 
@@ -102,11 +155,61 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
                 //This Even repeats each day
                 if (isChecked){
                     endDate.setText("None");
+                    endDate.setError(null);
                     endDate.setTextIsSelectable(false);
                 }
                 //Allow user to set an end date
                 else{
                     endDate.setTextIsSelectable(true);
+                }
+            }
+        });
+
+    }
+
+    //Check if hours value is valid
+    public void onHoursSet(){
+        hours.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                try {
+                    int numHours = Integer.parseInt(hours.getText().toString());
+                    if (numHours >= 18){
+                        hours.setText("");
+                        hours.setError("Leave Time to Sleep!");
+                        hoursTotal = 0;
+                    }
+                }
+                catch (NumberFormatException e){
+                    Log.d("parseInt Excpetion", "exception" + e);
+                    hours.setText("0");
+                    hoursTotal = 0;
+                }
+            }
+        });
+
+    }
+
+    //Check if minutes value is valid
+    public void onMinutesSet(){
+        minutes.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus){
+                    try {
+                        int numMin = Integer.parseInt(minutes.getText().toString());
+                        minTotal = numMin;
+                        if (numMin >= 60){
+                            minTotal = 59;
+                            minutes.setText("59");
+                        }
+                    }
+                    catch (NumberFormatException e){
+                        Log.d("parseInt Exception", "exception" + e);
+                        minutes.setText("0");
+                        minTotal = 0;
+                    }
                 }
             }
         });
@@ -125,9 +228,7 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
 
     //saves the task in shared preferences
     public void onSaveButtonClicked(View v){
-        String eventString = eventName.getText().toString();
-
-        Map<String, String> tasksMap;
+        Map<String, JSONObject> tasksMap;
 
         SharedPreferences sp = getSharedPreferences(TC_SHARED_PREF, 0);
 
@@ -137,36 +238,56 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
         //If a values map already exists, set it equal to tasksMap variable
         //else, create a new map
         if (tasks != null){
-            java.lang.reflect.Type type = new TypeToken<HashMap<String, String>>(){}.getType();
+            java.lang.reflect.Type type = new TypeToken<HashMap<String, JSONObject>>(){}.getType();
             tasksMap = gson.fromJson(tasks, type);
         } else {
-            tasksMap = new HashMap<String, String>();
+            tasksMap = new HashMap<String, JSONObject>();
         }
 
         //If an event by this name already exists, check if they want it replaced
-        if (tasksMap.containsKey(eventName)){
+        if (tasksMap.containsKey(eventName.getText().toString())){
             showDialog();
             if (! replace){
                 return;
             }
         }
 
+        JSONObject saveTask = taskToJSON();
+
+        //save this task using the event name as a key
+        tasksMap.put(eventName.getText().toString(), saveTask);
+        String tasksMapString = gson.toJson(tasksMap);
+
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("tasksMap", tasksMapString);
+
+        editor.commit();
+    }
+
+    public JSONObject taskToJSON(){
+        int totalTime = (hoursTotal * 60) + minTotal;
+        String timeString = Integer.toString(totalTime);
+        String eventString = eventName.getText().toString();
+        String typeString = chooseType.getSelectedItem().toString();
+        String fromString = startDate.getText().toString();
+        String toString = endDate.getText().toString();
+        Boolean breakBool = dontBreak.isChecked();
+
+
         //Save all objects inside JSON
         saveTask = new JSONObject();
         try {
             saveTask.put("event", eventString);
-
-
+            saveTask.put("type", typeString);
+            saveTask.put("fromTime", fromString);
+            saveTask.put("toTime", toString);
+            saveTask.put("totalTime", timeString);
+            saveTask.put("dontBreak", breakBool);
 
         } catch (JSONException e) {
             Log.d("JSON", e.toString());
         }
-
-
-        SharedPreferences.Editor editor = sp.edit();
-
-
-        editor.commit();
+        return saveTask;
     }
 
     //open sameName Dialog
@@ -186,5 +307,25 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
     @Override
     public void onDialogNegativeClick(DialogFragment dialog) {
         replace = false;
+    }
+
+    //When you click outside an edit box, change the focus
+    //Taken from stack overflow
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            View v = getCurrentFocus();
+            if (v instanceof EditText) {
+                Rect outRect = new Rect();
+                v.getGlobalVisibleRect(outRect);
+                if (!outRect.contains((int) event.getRawX(), (int) event.getRawY())) {
+                    v.clearFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+            }
+        }
+
+        return super.dispatchTouchEvent(event);
     }
 }
