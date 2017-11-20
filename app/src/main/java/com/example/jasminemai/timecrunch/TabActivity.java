@@ -397,7 +397,7 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
     /*
         This is an AsyncTask to make the API calls to Google Calendar in a background thread.
      */
-    private class MakeRequestTask extends AsyncTask<Void, Integer, String> {
+    private class MakeRequestTask extends AsyncTask<Void, String, String> {
         private com.google.api.services.calendar.Calendar mService = null;
         private Exception mLastError = null;
 
@@ -432,24 +432,7 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
          */
         private String getDataFromApi() throws IOException, JSONException {
 
-//            Task task = new Task ("2017-11-19", "12:30:00", "2017-11-19",
-//                    "16:43:00", "Bio Studying", "studying");
-//
-//            task.setEventID("9nmpm00al0cpfanku2e3hgmg1s");
-//
-//            return CalendarFunctions.deleteEvent(task, mService, "primary").toString();
-
-//            Event event = CalendarFunctions.addEvent(task, mService, "primary");
-
-//            return event.toPrettyString();
-
-//            FreeBusyResponse response = CalendarFunctions.getFreeBusy(mService, "2017-11-19", "09:35:00",
-//                    "2017-11-29", "23:30:00", "primary");
-//
-//            return response.getCalendars().get("primary").getBusy().get(0).toPrettyString();
-
-            //testing parameters
-            String calendarId = "primary";
+          String calendarId = "primary";
             String startTestfreeTime = "06:00:00";
             String endTestfreeTime = "23:45:00";
 
@@ -457,7 +440,7 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
             FreeBusyResponse fbResponse = CalendarFunctions.getFreeBusy(mService, "2017-11-20",
                     "06:00:00", "2017-11-20", "23:30:00", calendarId);
 
-            List <TimePeriod> busyTimes;
+            List<TimePeriod> busyTimes;
             List<Interval> freeTimes;
 
             //error check on free/Busy response
@@ -482,26 +465,21 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                     //convert information in Shared Preferences into Map
                     Map<String, JSONObject> tasksAsJSON = Converter.spToMap(task);
 
-//                    for (String tasktask : tasksAsJSON.keySet()) {
-//                        Log.d("looking at saved", tasksAsJSON.get(tasktask).getString("name") +
-//                                tasksAsJSON.get(tasktask).getInt("totalTime"));
-//                    }
-
                     //Create temporary map of type to task objects
                     Map<String, ArrayList<Task>> tempMap = Converter.createSplitUpMap(tasksAsJSON);
 
-                    //throw error if there is not enough free time
+                    //show error if there is not enough free time
                     if (TimeFunctions.totalFreeTime(freeTimes) < TimeFunctions.totalTaskTimeReq(tasksAsJSON)) {
-                        Toast.makeText(getApplicationContext(), "You don't have enough free time to do everything", Toast.LENGTH_LONG).show();
+                        publishProgress("NOTIME");
 
-//                    } else {
-//
-//                        for (String key: tempMap.keySet()) {
-//                            for (Task task1: tempMap.get(key)) {
-//                                Log.d(key, task1.type + task1.name + task1.totalTime);
-//                            }
-//                        }
-////                        return tempMap.toString();
+                    } else {
+
+                        for (String key : tempMap.keySet()) {
+                            for (Task task1 : tempMap.get(key)) {
+                                Log.d(key, task1.type + task1.name + task1.totalTime);
+                            }
+                        }
+//                        return tempMap.toString();
 
                         boolean overHourTask = true;
 
@@ -510,16 +488,20 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                             //get the largest schedule block and fit it into the largest time block
                             //TODO: show error message if it doesn't fit
                             Interval largestFreeTime = TimeFunctions.getLargestTimeBlock(freeTimes);
-                            Task longestTask = TimeFunctions.getLongestTaskBlock(tempMap);
+                            final Task longestTask = TimeFunctions.getLongestTaskBlock(tempMap);
 
-                            //go with longer tasks first as priority
-                            if (longestTask.totalTime > 60) {
+                            if (longestTask == null) {
+                                overHourTask = false;
+                            } else if (longestTask.totalTime > 60) {
+                                //go with longer tasks first as priority
                                 if (longestTask.totalTime <= largestFreeTime.toDuration().getStandardMinutes()) {
                                     int index = TimeFunctions.getLargestTimeBlockIndex(freeTimes);
                                     org.joda.time.DateTime startDT = org.joda.time.DateTime.parse(largestFreeTime.getStart().toString());
                                     org.joda.time.DateTime endDT = startDT.plusMinutes(longestTask.totalTime);
 
                                     Interval newTaskInterval = new Interval(startDT, endDT);
+
+                                    Log.d("newtaskinterval", newTaskInterval.toString());
 
                                     //subtract from free interval
                                     Interval newFreeInterval = TimeFunctions.decreaseIntervalFromHead(largestFreeTime, newTaskInterval);
@@ -530,16 +512,30 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                                         freeTimes.remove(index);
                                     }
 
+                                    Log.d("newtaskintervalStart", newTaskInterval.getStart().toString());
+                                    Log.d("newtaskintervalEnd", newTaskInterval.getEnd().toString());
+
                                     longestTask.setStartTime(newTaskInterval.getStart().toString());
                                     longestTask.setEndTime(newTaskInterval.getEnd().toString());
 
                                     //add event to calendar, keeping track fo the event IDs and deleting
                                     //from the temp list.
                                     Event newlyadded = CalendarFunctions.addEventProperFormat(longestTask, mService, calendarId);
+                                    Log.d("added event", newlyadded.toPrettyString());
+
+//                                    String eventID = newlyadded.getId();
+//                                    tasksAsJSON.get(longestTask.name).getJSONArray("eventID").put(eventID);
+
+                                    TimeFunctions.removeFromTempList(tempMap, longestTask);
+
+//                                    return newlyadded.toPrettyString();
 //                                    tasksAsJSON.get(longestTask.name).getString()
 
-
+                                } else {
+                                    publishProgress("TASKTOOLONG");
+                                    TimeFunctions.removeFromTempList(tempMap, longestTask);
                                 }
+
                             } else {
                                 overHourTask = false;
                             }
@@ -551,12 +547,19 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
             } else {
                 Log.w("test", "freeTimes is null");
             }
+
             return null;
         }
 
         @Override
-        protected void onProgressUpdate(Integer... params) {
-            mProgress.setProgress(params[0]);
+        protected void onProgressUpdate(String... params) {
+           if (params[0].equals("NOTIME")) {
+            Toast.makeText(getApplicationContext(),
+                    "You don't have enough free time to do everything", Toast.LENGTH_LONG).show();
+           } else if (params[0].equals("TASKTOOLONG")) {
+               Toast.makeText(getApplicationContext(),
+                       "One of your tasks is too long", Toast.LENGTH_LONG).show();
+           }
         }
 
         @Override

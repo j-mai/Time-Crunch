@@ -134,7 +134,7 @@ public class CalendarFunctions {
         DateTime endDateTime = null;
 
         try {
-            Date d = dateFormat.parse(task.startTime);
+            Date d = dateFormat.parse(task.endTime);
             endDateTime = new DateTime(d, TimeZone.getDefault());
         } catch (ParseException exception) {
             Log.w("DateTime parsing", exception.toString());
