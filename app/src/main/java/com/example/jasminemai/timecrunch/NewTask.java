@@ -280,7 +280,7 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
 
 
         //Save all objects inside JSON
-        saveTask = Converter.stringsToJSON(eventString, typeString, fromString, toString, timeString, breakBool);
+        saveTask = Converter.stringsToJSON(eventString, typeString, fromString, toString, timeString, !breakBool);
         return saveTask;
     }
 
