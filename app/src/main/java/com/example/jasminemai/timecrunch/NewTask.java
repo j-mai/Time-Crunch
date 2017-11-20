@@ -248,6 +248,10 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
         String tasks = sp.getString("tasksMap",null);
         tasksMap = Converter.spToMap(tasks);
 
+        if (eventName.getText() == null || eventName.getText().toString().equals("")){
+            eventName.setError("You Must Have a Task Name");
+            return;
+        }
         //If an event by this name already exists, check if they want it replaced
         if (tasksMap.containsKey(eventName.getText().toString())){
             showDialog();
