@@ -92,6 +92,24 @@ public class Converter {
         return tasks;
     }
 
+    public static Map createSplitUpMap(Map <String, JSONObject> tasks) {
+
+        Map<String, ArrayList<Task>> tempMap = new HashMap<String, ArrayList<Task>>();
+
+        tempMap.put("Study", new ArrayList<Task>());
+        tempMap.put("Other", new ArrayList<Task>());
+        tempMap.put("Exercise", new ArrayList<Task>());
+
+        for (String key : tasks.keySet()) {
+            Task task = jsonToTask(tasks.get(key));
+
+            if (task.type.equals("Study"))
+
+        }
+
+    }
+
+
 //    public static Map spToTempMap(String tasks) {
 //
 //        Map<String, JSONObject> taskMap = spToMap(tasks);

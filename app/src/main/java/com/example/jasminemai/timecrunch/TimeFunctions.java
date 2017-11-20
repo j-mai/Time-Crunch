@@ -221,4 +221,23 @@ public class TimeFunctions {
 
         return totalTime;
     }
+
+    public static ArrayList<Task> splitUpTask (Task task) {
+
+        ArrayList<Task> splitUp = new ArrayList<>();
+
+        while (task.totalTime > 60) {
+
+            Task newTask = new Task (task.startDate, task.endDate, task.name, task.type,
+                    60, true);
+
+            splitUp.add(newTask);
+
+            task.totalTime = task.totalTime - 60;
+        }
+
+        splitUp.add(task);
+
+        return splitUp;
+    }
 }
