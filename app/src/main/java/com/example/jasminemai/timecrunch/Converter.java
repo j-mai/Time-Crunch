@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -87,27 +88,38 @@ public class Converter {
         return task;
     }
 
-    public static ArrayList<Task> mapToArray(Map map){
+    //takes a map of strings to JSON objects and converts it into an ArrayList of Task Objects
+    public static ArrayList<Task> mapToArray(HashMap<String, JSONObject> map){
         ArrayList<Task> tasks = new ArrayList<>();
+
+        Iterator it = map.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            System.out.println(pair.getKey() + " = " + pair.getValue());
+            JSONObject taskInfo = (JSONObject) pair.getValue();
+            Task task = jsonToTask(taskInfo);
+            tasks.add(task);
+            it.remove(); // avoids a ConcurrentModificationException
+        }
         return tasks;
     }
 
-    public static Map createSplitUpMap(Map <String, JSONObject> tasks) {
-
-        Map<String, ArrayList<Task>> tempMap = new HashMap<String, ArrayList<Task>>();
-
-        tempMap.put("Study", new ArrayList<Task>());
-        tempMap.put("Other", new ArrayList<Task>());
-        tempMap.put("Exercise", new ArrayList<Task>());
-
-        for (String key : tasks.keySet()) {
-            Task task = jsonToTask(tasks.get(key));
-
-            if (task.type.equals("Study"))
-
-        }
-
-    }
+//    public static Map createSplitUpMap(Map <String, JSONObject> tasks) {
+//
+//        Map<String, ArrayList<Task>> tempMap = new HashMap<String, ArrayList<Task>>();
+//
+//        tempMap.put("Study", new ArrayList<Task>());
+//        tempMap.put("Other", new ArrayList<Task>());
+//        tempMap.put("Exercise", new ArrayList<Task>());
+//
+//        for (String key : tasks.keySet()) {
+//            Task task = jsonToTask(tasks.get(key));
+//
+//            if (task.type.equals("Study"))
+//
+//        }
+//
+//    }
 
 
 //    public static Map spToTempMap(String tasks) {
