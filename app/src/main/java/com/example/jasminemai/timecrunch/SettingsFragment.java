@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +16,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.joda.time.LocalTime;
 
 import java.sql.Time;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 
 /**
@@ -39,6 +48,12 @@ public class SettingsFragment extends Fragment {
     Spinner allHoursSleep;
     Spinner allMinSleep;
     Button saveSettings;
+
+    String defaulth1="00";
+    String defaulth2="00";
+    String defaultm1= "00";
+    String defaultm2 = "00";
+    String defaults = "8";
 
     EditText wakeTime;
 
@@ -65,27 +80,46 @@ public class SettingsFragment extends Fragment {
         wake = view.findViewById(R.id.wake);
         bed = view.findViewById(R.id.bed);
 
+        try {
+            setSavedSpinnersDefault();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         //wakeTime = (EditText) view.findViewById(R.id.wakeTime);
         setupSpinner();
-        setupHourSpinner(allHoursWake);
-        setupHourSpinner(allHoursSleep);
-        setupMinSpinner(allMinWake);
-        setupMinSpinner(allMinSleep);
+        setupHourSpinner(allHoursWake, defaulth1);
+        setupHourSpinner(allHoursSleep, defaulth2);
+        setupMinSpinner(allMinWake, defaultm1);
+        setupMinSpinner(allMinSleep, defaultm2);
 
         setSaveButtonListener();
 
         return view;
     }
-//
-//    public void setSavedSpinners(){
-//        SharedPreferences sp = getActivity().getSharedPreferences(TC_SHARED_PREF, 0);
-//
-//        String savedWake = sp.getString("wakeTime", null);
-//        String savedSleep = sp.getString("bedTime", null);
-//        if (savedWake != null){
-//
-//        }
-//    }
+
+    public void setSavedSpinnersDefault() throws ParseException {
+        SharedPreferences sp = getActivity().getSharedPreferences(TC_SHARED_PREF, 0);
+
+        String savedWake = sp.getString("wakeTime", null);
+        String savedSleep = sp.getString("bedTime", null);
+        String desiredSleep = sp.getString("desiredSleep", null);
+
+        if (savedWake != null) {
+            Log.d("setDefaults", savedWake);
+            LocalTime wake = LocalTime.parse(savedWake);
+            defaulth1 = Integer.toString(wake.getHourOfDay());
+            defaultm2 = Integer.toString(wake.getMinuteOfHour());
+
+        }
+        if (savedSleep != null) {
+            LocalTime sleep = LocalTime.parse(savedSleep);
+            defaulth2 = Integer.toString(sleep.getHourOfDay());
+            defaultm2 = Integer.toString(sleep.getMinuteOfHour());
+        }
+        if (desiredSleep != null) {
+            defaults = desiredSleep;
+        }
+    }
 
     //sets up the spinner with the different amount of hours of sleep
     public void setupSpinner(){
@@ -97,7 +131,7 @@ public class SettingsFragment extends Fragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
 
-        String defaultVal = "8"; //the value you want the position for
+        String defaultVal = defaults; //the value you want the position for
         int spinnerPosition = adapter.getPosition(defaultVal);
 
         numHours.setAdapter(adapter);
@@ -107,7 +141,7 @@ public class SettingsFragment extends Fragment {
     }
 
     //sets up the spinner with the different amount of hours of sleep
-    public void setupHourSpinner(Spinner current){
+    public void setupHourSpinner(Spinner current, String defaultValue){
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this.getActivity(),
                 R.array.allHours, android.R.layout.simple_spinner_item);
 //        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this.getActivity(),
@@ -116,7 +150,7 @@ public class SettingsFragment extends Fragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
 
-        String defaultVal = "00"; //the value you want the position for
+        String defaultVal = defaultValue; //the value you want the position for
         int spinnerPosition = adapter.getPosition(defaultVal);
 
         current.setAdapter(adapter);
@@ -127,14 +161,14 @@ public class SettingsFragment extends Fragment {
     }
 
     //sets up the spinner with the different amount of min of sleep
-    public void setupMinSpinner(Spinner current){
+    public void setupMinSpinner(Spinner current, String defaultValue){
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this.getActivity(),
                 R.array.allMin, android.R.layout.simple_spinner_item);
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
 
-        String defaultVal = "00"; //the value you want the position for
+        String defaultVal = defaultValue; //the value you want the position for
         int spinnerPosition = adapter.getPosition(defaultVal);
 
         current.setAdapter(adapter);
@@ -145,44 +179,30 @@ public class SettingsFragment extends Fragment {
     }
 
     public void setSaveButtonListener(){
-        final String wakeTime = allHoursWake.getSelectedItem().toString() + ":" + allMinWake.getSelectedItem().toString()+":00";
-        final String sleepTime = allHoursSleep.getSelectedItem().toString() + ":" + allMinSleep.getSelectedItem().toString()+ ":00";
-
         saveSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!TimeFunctions.bedTimeCalc(wakeTime, sleepTime)){
-                    bed.setError("Must sleep at least 6 hours before waking");
-                    return;
-                } else{
-                    SharedPreferences sp = getActivity().getSharedPreferences(TC_SHARED_PREF, 0);
-                    SharedPreferences.Editor editor = sp.edit();
-                    editor.putString("wakeTime", wakeTime);
-                    editor.putString("bedTime", sleepTime);
-                    editor.apply();
-                }
+//                if (!TimeFunctions.bedTimeCalc(wakeTime, sleepTime)){
+////                    bed.setError("Must sleep at least 6 hours before waking");
+//                    return;
+//                } else{
+                final String wakeTime = allHoursWake.getSelectedItem().toString() + ":" + allMinWake.getSelectedItem().toString()+":00";
+                final String sleepTime = allHoursSleep.getSelectedItem().toString() + ":" + allMinSleep.getSelectedItem().toString()+ ":00";
+                final String desiredTime = numHours.getSelectedItem().toString();
+
+                Log.d("wake", wakeTime);
+                Log.d("sleep", sleepTime);
+                SharedPreferences sp = getActivity().getSharedPreferences(TC_SHARED_PREF, 0);
+                SharedPreferences.Editor editor = sp.edit();
+                editor.putString("wakeTime", wakeTime);
+                editor.putString("bedTime", sleepTime);
+                editor.putString("desiredSleep", desiredTime);
+                editor.apply();
+                Toast.makeText(getContext(), "Saved!", Toast.LENGTH_SHORT).show();
+
+ //               }
             }
         });
     }
-
-
-//
-//    @Override
-//    public void onAttach(Context context) {
-//        super.onAttach(context);
-//        if (context instanceof OnFragmentInteractionListener) {
-//            mListener = (OnFragmentInteractionListener) context;
-//        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
-//        }
-//    }
-//
-//    @Override
-//    public void onDetach() {
-//        super.onDetach();
-//        mListener = null;
-//    }
-
 
 }
