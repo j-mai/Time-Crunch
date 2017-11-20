@@ -34,6 +34,7 @@ public class CalendarFunctions {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
         date = date.replaceAll("\\s", "");
         time = time.replaceAll("\\s", "");
+
         String dateToParse = date + "T" + time;
         try {
             Date d = dateFormat.parse(dateToParse);
@@ -99,6 +100,60 @@ public class CalendarFunctions {
         }
     }
 
+    //function to add event to calendar - already proper format
+    public static Event addEventProperFormat(Task task, Calendar calendar, String calendarId) throws IOException{
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+
+        Event event = new Event()
+                .setSummary(task.name);
+
+        if (task.description != null) {
+            event.setDescription(task.description);
+        }
+
+        DateTime startDateTime = null;
+        try {
+            Date d = dateFormat.parse(task.startTime);
+            startDateTime = new DateTime(d, TimeZone.getDefault());
+        } catch (ParseException exception) {
+            Log.w("DateTime parsing", exception.toString());
+            return null;
+        }
+
+        String timeZone = TimeZone.getDefault().getID();
+
+        if (startDateTime != null) {
+            EventDateTime start = new EventDateTime()
+                    .setDateTime(startDateTime)
+                    .setTimeZone(timeZone);
+            event.setStart(start);
+        }
+
+
+        DateTime endDateTime = null;
+
+        try {
+            Date d = dateFormat.parse(task.startTime);
+            endDateTime = new DateTime(d, TimeZone.getDefault());
+        } catch (ParseException exception) {
+            Log.w("DateTime parsing", exception.toString());
+            return null;
+        }
+
+        if (endDateTime != null) {
+            EventDateTime end = new EventDateTime()
+                    .setDateTime(endDateTime)
+                    .setTimeZone(timeZone);
+            event.setEnd(end);
+        }
+
+        event = calendar.events().insert(calendarId, event).execute();
+
+        return event;
+
+    }
+
     //function to add event to calendar
     public static Event addEvent(Task task, Calendar calendar, String calendarId) throws IOException{
 
@@ -142,7 +197,7 @@ public class CalendarFunctions {
                     return false;
                 }
             }
-            
+
         } else if (task == null) {
             Log.w("deleteEvent", "task is null");
         } else if (task.eventID == null) {

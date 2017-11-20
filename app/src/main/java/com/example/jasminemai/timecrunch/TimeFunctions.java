@@ -198,22 +198,44 @@ public class TimeFunctions {
     }
 
     //get longest Task Block
-    public static Task getLongestTaskBlock (Map<String, JSONObject> taskMapfromSP) {
+    public static Task getLongestTaskBlock (Map<String, ArrayList<Task>> taskMap) {
 
         Task longest = null;
 
-        for (String key : taskMapfromSP.keySet()) {
-            if (longest == null) {
-                longest = Converter.jsonToTask(taskMapfromSP.get(key));
-            } else {
-                if (longest.totalTime < Converter.jsonToTask(taskMapfromSP.get(key)).totalTime) {
-                    longest = Converter.jsonToTask(taskMapfromSP.get(key));
+        for (String key : taskMap.keySet()) {
+            for (Task task : taskMap.get(key))
+                if (longest == null) {
+                longest = task;
+                } else {
+                    if (longest.totalTime < task.totalTime) {
+                        longest = task;
                 }
             }
         }
 
         return longest;
 
+    }
+
+    //get index of longest Task Block
+    public static int getLongestTaskBlockIndex (Map<String, ArrayList<Task>> taskMap) {
+
+        int index = 0;
+
+        for (String key : taskMap.keySet()) {
+            for (int i = 0; i < taskMap.get(key).size(); i++) {
+                if (taskMap.get(key).get(i).totalTime > taskMap.get(key).get(index).totalTime) {
+                    index = i;
+                }
+            }
+        }
+
+        return index;
+
+    }
+
+    public static Boolean removeFromTempList (Map<String, ArrayList<Task>> taskMap, Task task) {
+        return (taskMap.get(task.type).remove(task));
     }
 
     //subtract from Intervals, for decreasing free periods
