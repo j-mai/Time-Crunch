@@ -185,6 +185,8 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
                         hours.setText("");
                         hours.setError("Leave Time to Sleep!");
                         hoursTotal = 0;
+                    } else{
+                        hoursTotal = numHours;
                     }
                 }
                 catch (NumberFormatException e){

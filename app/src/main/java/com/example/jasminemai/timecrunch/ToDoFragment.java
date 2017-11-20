@@ -15,6 +15,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import org.json.JSONObject;
 
@@ -33,6 +35,8 @@ public class ToDoFragment extends Fragment {
     public static String TC_SHARED_PREF = "my_sharedpref";
 
     View todoFragView;
+    private ListView mListView;
+
 
 //    private OnFragmentInteractionListener mListener;
 
@@ -47,6 +51,9 @@ public class ToDoFragment extends Fragment {
         todoFragView = inflater.inflate(R.layout.fragment_to_do, container, false);
         onNewTaskButtonClicked(todoFragView);
         onAuthButtonClicked(todoFragView);
+
+        getTasksList();
+
         return todoFragView;
     }
 
@@ -84,9 +91,19 @@ public class ToDoFragment extends Fragment {
         SharedPreferences sp = getActivity().getSharedPreferences(TC_SHARED_PREF, 0);
         String tasks = sp.getString("tasksMap",null);
         HashMap<String, JSONObject> map = Converter.spToMap(tasks);
-        ArrayList taskArray = Converter.mapToArray(map);
+        ArrayList<Task> taskArray = Converter.mapToArray(map);
+
+        if (!taskArray.isEmpty()){
+            mListView = todoFragView.findViewById(R.id.todoList);
+            Task[] newTaskArray = taskArray.toArray(new Task[taskArray.size()]);
+            taskAdapter taskAdapter = new taskAdapter(getContext(), R.layout.todo_item, newTaskArray);
+            mListView.setAdapter(taskAdapter);
+        }else {
+            Log.d("no tasks", "taskListEmpty");
+        }
     }
-        //create the history tab of cats
+
+    //create the to-do list
     public class taskAdapter extends ArrayAdapter<Task> {
 
         public taskAdapter(@NonNull Context context, int resource, @NonNull Task[] objects) {
@@ -95,6 +112,20 @@ public class ToDoFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            final Task myTask = getItem(position);
+
+            if (convertView == null) {
+                convertView = getLayoutInflater().inflate(R.layout.todo_item, null);
+            }
+
+            //Create variables for each thing in the todo_item layout
+            TextView eventName = convertView.findViewById(R.id.event);
+            TextView fromTime = convertView.findViewById(R.id.start);
+            TextView toTime = convertView.findViewById(R.id.end);
+
+            eventName.setText(myTask.name);
+            fromTime.setText(myTask.startDate);
+            toTime.setText(myTask.endDate);
             return convertView;
         }
     }

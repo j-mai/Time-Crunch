@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
     public void newScheduleButtonClicked(View v) {
         Log.d("ScheduleButtonClicked", "Plan Day");
 
-        //clear sharedPreferences
+//        clear sharedPreferences
 //        SharedPreferences sp = getSharedPreferences(TC_SHARED_PREF, 0);
 //        SharedPreferences.Editor editor = sp.edit();
 //        editor.clear();
