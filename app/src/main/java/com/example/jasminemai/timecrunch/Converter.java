@@ -7,6 +7,8 @@ import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import android.content.SharedPreferences;
@@ -74,5 +76,20 @@ public class Converter {
             Log.d("JSON", e.toString());
         }
         return newJson;
+    }
+
+    public static Map spToTempMap(String tasks) {
+
+        Map<String, JSONObject> taskMap = spToMap(tasks);
+
+        Map<String, ArrayList<Task>> tempMap = new HashMap<String, ArrayList<Task>>();
+
+        tempMap.put("Study", new ArrayList<Task>());
+        tempMap.put("Other", new ArrayList<Task>());
+        tempMap.put("Exercise", new ArrayList<Task>());
+
+        for (String key : taskMap.keySet()) {
+
+        }
     }
 }

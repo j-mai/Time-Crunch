@@ -8,12 +8,15 @@ import com.google.api.services.calendar.model.TimePeriod;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -150,5 +153,72 @@ public class TimeFunctions {
 
         return freeTimes;
 
+    }
+
+    //returns the amount of free time that the user has in a day
+    public static int totalFreeTime (List<Interval> freeTimes) {
+
+        int minutes = 0;
+
+        for (int i = 0; i < freeTimes.size(); i++) {
+            minutes = minutes + (int)(freeTimes.get(i).toDuration().getStandardMinutes());
+        }
+
+        return minutes;
+    }
+
+    public static Interval getLargestTimeBlock (List<Interval> freeTimes) {
+
+        Interval biggest = freeTimes.get(0);
+
+        for (int i=0; i < freeTimes.size(); i++) {
+            if (freeTimes.get(i).toDuration().getStandardMinutes() > biggest.toDuration().getStandardMinutes()) {
+                biggest = freeTimes.get(i);
+            }
+        }
+
+        return biggest;
+    }
+
+    public static int getLargestTimeBlockIndex (List<Interval> freeTimes) {
+
+        int biggest = 0;
+
+        for (int i=0; i < freeTimes.size(); i++) {
+            if (freeTimes.get(i).toDuration().getStandardMinutes() >
+                    freeTimes.get(biggest).toDuration().getStandardMinutes()) {
+                biggest = i;
+            }
+        }
+
+        return biggest;
+    }
+
+    public static Interval decreaseIntervalFromHead (Interval bigInterval, Interval smallInterval) {
+
+        Interval overlap = bigInterval.overlap(smallInterval);
+
+        Interval newInteveral = new Interval (overlap.getEnd(), bigInterval.getEnd());
+
+        return newInteveral;
+
+    }
+
+
+    public static int totalTaskTimeReq (HashMap<String, JSONObject> hashMap) {
+
+        int totalTime = 0;
+        for (String key : hashMap.keySet()) {
+            try {
+                int time = hashMap.get(key).getInt("totalTime");
+                totalTime += time;
+            } catch (JSONException e) {
+                Log.e("totalTaskTimeReq error:", e.toString());
+                return -1;
+            }
+
+        }
+
+        return totalTime;
     }
 }
