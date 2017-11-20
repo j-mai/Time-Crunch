@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.Calendar;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.support.v4.app.FragmentActivity;
@@ -27,6 +28,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import org.joda.time.DateTime;
@@ -47,7 +49,7 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
 
     private SameNameFragment sameNameFrag;
     public static String TC_SHARED_PREF = "my_sharedpref";
-    boolean replace = false;
+    boolean replace = true;
 
     org.joda.time.LocalDate currentDate = new org.joda.time.LocalDate(DateTimeZone.getDefault());
     org.joda.time.LocalDate start = currentDate;
@@ -247,11 +249,13 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
         //If an event by this name already exists, check if they want it replaced
         if (tasksMap.containsKey(eventName.getText().toString())){
             showDialog();
-            if (! replace){
+            if (!replace){
+                Log.d("cancel", "user canceled save");
                 return;
             }
         }
 
+        Log.d("taskToJSON", "saving task as JSON");
         JSONObject saveTask = taskToJSON();
 
         //save this task using the event name as a key
@@ -261,7 +265,12 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
         SharedPreferences.Editor editor = sp.edit();
         editor.putString("tasksMap", tasksMapString);
 
-        editor.commit();
+        editor.apply();
+        Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show();
+
+        Intent todoIntent = new Intent(this, TabActivity.class);
+        startActivity(todoIntent);
+
     }
 
     public JSONObject taskToJSON(){

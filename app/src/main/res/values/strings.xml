@@ -16,7 +16,7 @@
     <string name="begin">Plan Your Day! </string>
 
     //NewTaskActivity
-    <string name="titleDefault">Task Name Here</string>
+    <string name="titleDefault">Task Name</string>
     <string name="startDate">Start Date</string>
     <string name="endDate">End Date</string>
     <string name="from">From: </string>
@@ -34,7 +34,8 @@
 
 
     //SameNameFragment
-    <string name="sameName">A task with this name already exists. Would you like to replace it?</string>
+    <string name="sameName">A task with this name already exists.</string>
+    <string name="subTitle">Would you like to replace it?</string>
     <string name="replace">REPLACE </string>
     <string name="cancel">CANCEL </string>
 
