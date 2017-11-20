@@ -110,7 +110,7 @@ public class Converter {
     }
 
     //create map of task type to split up tasks
-    public static Map createSplitUpMap(Map <String, JSONObject> tasks) {
+    public static Map<String, ArrayList<Task>> createSplitUpMap(Map <String, JSONObject> tasks) {
 
         Map<String, ArrayList<Task>> tempMap = new HashMap<String, ArrayList<Task>>();
 
