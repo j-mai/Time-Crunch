@@ -397,6 +397,7 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
         private Exception mLastError = null;
 
         MakeRequestTask(GoogleAccountCredential credential) {
+            Log.d("Credential", credential.getSelectedAccountName());
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
             mService = new com.google.api.services.calendar.Calendar.Builder(
@@ -732,7 +733,11 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                             ((UserRecoverableAuthIOException) mLastError).getIntent(),
                             TabActivity.REQUEST_AUTHORIZATION);
                 } else {
-                    Log.e("error", mLastError.getMessage());
+                    if(mLastError.getMessage() != null){
+                        Log.e("error", mLastError.getMessage());
+                    }else{
+                        Log.e("error", "mLastError is null");
+                    }
 //                    mOutputText.setText("The following error occurred:\n"
 //                            + mLastError.getMessage());
                 }

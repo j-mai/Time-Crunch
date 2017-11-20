@@ -78,7 +78,14 @@ public class SettingsFragment extends Fragment {
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
+
+        String defaultVal = "8"; //the value you want the position for
+        int spinnerPosition = adapter.getPosition(defaultVal);
+
         numHours.setAdapter(adapter);
+
+        //set the default according to value
+        numHours.setSelection(spinnerPosition);
     }
 
 //    public void setUpWakeTime(){
