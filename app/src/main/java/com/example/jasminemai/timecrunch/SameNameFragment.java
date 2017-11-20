@@ -19,7 +19,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 
+import org.json.JSONObject;
 import org.w3c.dom.Text;
+
+import java.util.Map;
 
 /**
  * A fragment with a Google +1 button.
@@ -30,22 +33,13 @@ import org.w3c.dom.Text;
  * create an instance of this fragment.
  */
 public class SameNameFragment extends DialogFragment {
-    private String pass;
     private String firstPass;
-
-    public String getPass() {
-        return pass;
-    }
-
-    public String getFirstPass() {
-        return firstPass;
-    }
 
     /* The activity that creates an instance of this dialog fragment must
      * implement this interface in order to receive event callbacks.
      * Each method passes the DialogFragment in case the host needs to query it. */
     public interface DialogListener {
-        void onDialogPositiveClick(DialogFragment dialog, String password);
+        void onDialogPositiveClick(DialogFragment dialog);
 
         void onDialogNegativeClick(DialogFragment dialog);
     }
@@ -75,7 +69,7 @@ public class SameNameFragment extends DialogFragment {
                         // collect strings
                         //TextView tu = dialog_view.findViewById(R.id.confirmPassword);
 
-                        mListener.onDialogPositiveClick(SameNameFragment.this, getPass());
+                        mListener.onDialogPositiveClick(SameNameFragment.this);
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

@@ -51,7 +51,7 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
 
     private SameNameFragment sameNameFrag;
     public static String TC_SHARED_PREF = "my_sharedpref";
-    boolean replace = true;
+    boolean replace = false;
 
     org.joda.time.LocalDate currentDate = new org.joda.time.LocalDate(DateTimeZone.getDefault());
     org.joda.time.LocalDate start = currentDate;
@@ -70,6 +70,7 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
 
     int hoursTotal;
     int minTotal;
+    Map<String, JSONObject> tasksMap;
 
     //Create the New Task
     @Override
@@ -240,7 +241,7 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
         SharedPreferences sp = getSharedPreferences(TC_SHARED_PREF, 0);
 
         String tasks = sp.getString("tasksMap",null);
-        Map<String, JSONObject> tasksMap = Converter.spToMap(tasks);
+        tasksMap = Converter.spToMap(tasks);
 
         //If an event by this name already exists, check if they want it replaced
         if (tasksMap.containsKey(eventName.getText().toString())){
@@ -248,9 +249,16 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
             if (!replace){
                 Log.d("cancel", "user canceled save");
                 return;
+            } else {
+                saveTaskAndReturn();
             }
+        } else {
+            saveTaskAndReturn();
         }
+    }
 
+    public void saveTaskAndReturn(){
+        SharedPreferences sp = getSharedPreferences(TC_SHARED_PREF, 0);
         Log.d("taskToJSON", "saving task as JSON");
         JSONObject saveTask = taskToJSON();
 
@@ -266,7 +274,6 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
 
         Intent todoIntent = new Intent(this, TabActivity.class);
         startActivity(todoIntent);
-
     }
 
     public JSONObject taskToJSON(){
@@ -293,7 +300,8 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
 
     //user wants to replace task with new one
     @Override
-    public void onDialogPositiveClick(DialogFragment dialog, String password) {
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        saveTaskAndReturn();
         replace = true;
     }
 
