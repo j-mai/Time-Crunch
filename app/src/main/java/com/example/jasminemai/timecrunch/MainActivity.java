@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+/*
+Welcome Screen for the app
+ */
 public class MainActivity extends AppCompatActivity {
     public static String TC_SHARED_PREF = "my_sharedpref";
 

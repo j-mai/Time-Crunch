@@ -32,6 +32,10 @@ import java.util.Map;
  * Use the { PasswordDialog#newInstance} factory method to
  * create an instance of this fragment.
  */
+
+/*This fragment shows up if the task has the same name as another task as a previous task
+before.
+ */
 public class SameNameFragment extends DialogFragment {
     private String firstPass;
 

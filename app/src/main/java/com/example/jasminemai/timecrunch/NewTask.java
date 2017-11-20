@@ -47,6 +47,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+/*
+This class is for the add Task activity
+ */
 
 public class NewTask extends FragmentActivity implements DatePickerDialog.OnDateSetListener, SameNameFragment.DialogListener {
 

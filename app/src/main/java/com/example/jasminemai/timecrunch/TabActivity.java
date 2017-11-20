@@ -114,8 +114,6 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
     GoogleAccountCredential mCredential;
     ProgressDialog mProgress;
 
-//    ProgressBar mProgress;
-
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
@@ -423,7 +421,19 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
         }
 
         /**
-         * Fetch a list of the next 10 events from the primary calendar.
+         * This is the main algorithm of the program. The following are the steps:
+         * 1. Call FreeBusy Query to the Google calendar of the user to get the
+         * times that the user is busy
+         * 2. Calculate the intervals of time that the user is free
+         * 3. Convert the task information saved in shared preferences into proper data structures,
+         * with breakable events broken up into several smaller tasks of 1 hour and smaller
+         * 4. If there are tasks that cannot be broken up and are over an hour,
+         * we put those in first, matching the
+         * longest task with the longest free time chunks
+         * 5. We update the data structure of tasks that keep track of what we added
+         * 6. When we are done with the long tasks, we move on the the hour task and short tasks.
+         * 7. For short tasks, we compare the times available and see if there are tasks the
+         * that fit the time period
          * @return List of Strings describing returned events.
          * @throws IOException
          */
@@ -472,12 +482,6 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
 
                     } else {
 
-//                        for (String key : tempMap.keySet()) {
-//                            for (Task task1 : tempMap.get(key)) {
-//                                Log.d(key, task1.type + task1.name + task1.totalTime);
-//                            }
-//                        }
-////                        return tempMap.toString();
 
                         boolean overHourTask = true;
 
@@ -492,41 +496,11 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                             } else if (longestTask.totalTime > 60) {
                                 //go with longer tasks first as priority
                                 if (longestTask.totalTime <= largestFreeTime.toDuration().getStandardMinutes()) {
-                                    int index = TimeFunctions.getLargestTimeBlockIndex(freeTimes);
-                                    org.joda.time.DateTime startDT = org.joda.time.DateTime.parse(largestFreeTime.getStart().toString());
-                                    org.joda.time.DateTime endDT = startDT.plusMinutes(longestTask.totalTime);
 
-                                    Interval newTaskInterval = new Interval(startDT, endDT);
+                                    //fits task into block, shifting free times accordingly
+                                    RankingAlgorithm.matchingTasksAndTimeBlocks(freeTimes, largestFreeTime,
+                                            longestTask, tempMap, mService, calendarId);
 
-                                    Log.d("newtaskinterval", newTaskInterval.toString());
-
-                                    //subtract from free interval
-                                    Interval newFreeInterval = TimeFunctions.decreaseIntervalFromHead(largestFreeTime, newTaskInterval);
-
-                                    if (newFreeInterval.toDuration().getStandardMinutes() > 0) {
-                                        freeTimes.set(index, newFreeInterval);
-                                    } else {
-                                        freeTimes.remove(index);
-                                    }
-
-                                    Log.d("newtaskintervalStart", newTaskInterval.getStart().toString());
-                                    Log.d("newtaskintervalEnd", newTaskInterval.getEnd().toString());
-
-                                    longestTask.setStartTime(newTaskInterval.getStart().toString());
-                                    longestTask.setEndTime(newTaskInterval.getEnd().toString());
-
-                                    //add event to calendar, keeping track fo the event IDs and deleting
-                                    //from the temp list.
-                                    Event newlyadded = CalendarFunctions.addEventProperFormat(longestTask, mService, calendarId);
-                                    Log.d("added event", newlyadded.toPrettyString());
-
-//                                    String eventID = newlyadded.getId();
-//                                    tasksAsJSON.get(longestTask.name).getJSONArray("eventID").put(eventID);
-
-                                    TimeFunctions.removeFromTempList(tempMap, longestTask);
-
-//                                    return newlyadded.toPrettyString();
-//                                    tasksAsJSON.get(longestTask.name).getString()
 
                                 } else {
                                     publishProgress("TASKTOOLONG");
@@ -545,15 +519,15 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
 
                         String lastInputType = null;
                         String lastTaskName = null;
-                        int i = 0;
+                        //go through remaining list of events
                         while (!all.isEmpty() && freeTimes.size() > 0) {
-                            i += 1;
-                            Log.d("going through", "number: " + i);
                             Interval interval = freeTimes.get(0);
 
+                            //ff the free block time is more than 60 minutes
                             if (interval.toDuration().getStandardMinutes() >= 60) {
                                 Task t1 = null;
 
+                                //choose a task that matches the time frame
                                 for (Task t : all) {
                                     if (t.totalTime == 60) {
                                         t1 = t;
@@ -561,33 +535,12 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                                     }
                                 }
 
-
+                                //fit the task in the time
                                 if (t1 != null) {
-                                    org.joda.time.DateTime startTime = interval.getStart();
-                                    org.joda.time.DateTime endTime = startTime.plusMinutes(t1.totalTime);
-                                    Interval taskInterval = new Interval(startTime, endTime);
+                                    RankingAlgorithm.calculateForShorterTimeBlocks(interval, t1, freeTimes,
+                                            mService, calendarId, tempMap, all);
 
-                                    Interval newFreeInterval = TimeFunctions.decreaseIntervalFromHead(interval, taskInterval);
-                                    if (newFreeInterval.toDuration().getStandardMinutes() > 0) {
-                                        freeTimes.set(0, newFreeInterval);
-                                    } else {
-                                        freeTimes.remove(0);
-                                    }
-
-                                    t1.setStartTime(taskInterval.getStart().toString());
-                                    t1.setEndTime(taskInterval.getEnd().toString());
-
-                                    //add event to calendar, keeping track fo the event IDs and deleting
-                                    //from the temp list.
-                                    Event newlyadded = CalendarFunctions.addEventProperFormat(t1, mService, calendarId);
-                                    Log.d("added event", newlyadded.toPrettyString());
-
-
-                                    TimeFunctions.removeFromTempList(tempMap, t1);
-                                    all.remove(t1);
-
-
-                                } else {
+                                } else { //there were no one hour tasks
 
                                     Task t2 = null;
                                     for (Task t : all) {
@@ -597,73 +550,31 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                                         }
                                     }
 
-
                                     if (t2 != null) {
-                                        org.joda.time.DateTime startTime = interval.getStart();
-                                        org.joda.time.DateTime endTime = startTime.plusMinutes(t2.totalTime);
-                                        Interval taskInterval = new Interval(startTime, endTime);
-
-                                        Interval newFreeInterval = TimeFunctions.decreaseIntervalFromHead(interval, taskInterval);
-                                        if (newFreeInterval.toDuration().getStandardMinutes() > 0) {
-                                            freeTimes.set(0, newFreeInterval);
-                                        } else {
-                                            freeTimes.remove(0);
-                                        }
-
-                                        t2.setStartTime(taskInterval.getStart().toString());
-                                        t2.setEndTime(taskInterval.getEnd().toString());
-
-                                        //add event to calendar and deleting from the temp list.
-                                        Event newlyadded = CalendarFunctions.addEventProperFormat(t2, mService, calendarId);
-                                        Log.d("added event", newlyadded.toPrettyString());
-
-                                        TimeFunctions.removeFromTempList(tempMap, t2);
-                                        all.remove(t2);
+                                        RankingAlgorithm.calculateForShorterTimeBlocks(interval, t2, freeTimes,
+                                                mService, calendarId, tempMap, all);
 
                                     } else {
                                         Log.d("time interval", "too short");
                                         freeTimes.remove(0);
                                     }
                                 }
-                            } else {
+
+                            } else { //the interval is not more than 60 minutes
 
                                 Task t3 = null;
-
                                 for (Task t : all) {
                                     if (t.totalTime < interval.toDuration().getStandardMinutes()) {
                                         t3 = t;
                                         break;
                                     }
 
-
                                 }
 
-
                                 if (t3 != null) {
-                                    org.joda.time.DateTime startTime = interval.getStart();
-                                    org.joda.time.DateTime endTime = startTime.plusMinutes(t3.totalTime);
-                                    Interval taskInterval = new Interval(startTime, endTime);
 
-                                    Interval newFreeInterval = TimeFunctions.decreaseIntervalFromHead(interval, taskInterval);
-                                    if (newFreeInterval.toDuration().getStandardMinutes() > 0) {
-                                        freeTimes.set(0, newFreeInterval);
-                                    } else {
-                                        freeTimes.remove(0);
-                                    }
-
-                                    t3.setStartTime(taskInterval.getStart().toString());
-                                    t3.setEndTime(taskInterval.getEnd().toString());
-
-                                    //add event to calendar, keeping track fo the event IDs and deleting
-                                    //from the temp list.
-                                    Event newlyadded = CalendarFunctions.addEventProperFormat(t3, mService, calendarId);
-                                    Log.d("added event", newlyadded.toPrettyString());
-
-//                                    String eventID = newlyadded.getId();
-//                                    tasksAsJSON.get(longestTask.name).getJSONArray("eventID").put(eventID);
-
-                                    TimeFunctions.removeFromTempList(tempMap, t3);
-                                    all.remove(t3);
+                                    RankingAlgorithm.calculateForShorterTimeBlocks(interval, t3, freeTimes,
+                                            mService, calendarId, tempMap, all);
 
                                 } else {
                                     Log.d("time interval", "too short");
@@ -672,10 +583,10 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                             }
 
 
-                            if (all.isEmpty()) {
+                            if (all.isEmpty()) { //all tasks scheduled
                                 return "FINISHED";
 
-                            } else if (freeTimes.size() <= 0) {
+                            } else if (freeTimes.size() <= 0) { //error, too many tasks
                                 publishProgress("TOOMANYTASKS");
                             }
 
@@ -692,6 +603,9 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
             return null;
         }
 
+        /*
+        Makes toasts to let users know that their schedule/pattern is not acheivable
+         */
         @Override
         protected void onProgressUpdate(String... params) {
            if (params[0].equals("NOTIME")) {
