@@ -87,7 +87,9 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         Log.w("DatePicker", "year = " + year);
-        currentDatePicked.setText(month + "/" + dayOfMonth + "/" + year);
+        //String date = String.format(getResources().getString(R.string.date), year, month, dayOfMonth);
+        String date = String.format(getResources().getString(R.string.date), year, month, dayOfMonth);
+        currentDatePicked.setText(date);
     }
 
 

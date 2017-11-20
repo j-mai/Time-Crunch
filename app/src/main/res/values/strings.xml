@@ -28,7 +28,7 @@
     <string name="min">Minutes: </string>
     <string name="defaultTime">0</string>
     <string name="blockTime">Don\'t Break Up This Task </string>
-    <string name="date">%1$d-%1$d-%1$d</string>
+    <string name="date">%3$d-%3$d-%3$d</string>
 
 
 
