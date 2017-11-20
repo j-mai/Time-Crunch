@@ -253,9 +253,8 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
         JSONObject saveTask = taskToJSON();
 
         //save this task using the event name as a key
-        Gson gson = new Gson();
         tasksMap.put(eventName.getText().toString(), saveTask);
-        String tasksMapString = gson.toJson(tasksMap);
+        String tasksMapString = Converter.mapToString(tasksMap);
 
         SharedPreferences.Editor editor = sp.edit();
         editor.putString("tasksMap", tasksMapString);
@@ -279,18 +278,7 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
 
 
         //Save all objects inside JSON
-        saveTask = new JSONObject();
-        try {
-            saveTask.put("name", eventString);
-            saveTask.put("type", typeString);
-            saveTask.put("startDate", fromString);
-            saveTask.put("endDate", toString);
-            saveTask.put("totalTime", timeString);
-            saveTask.put("breakUp", breakBool);
-
-        } catch (JSONException e) {
-            Log.d("JSON", e.toString());
-        }
+        saveTask = Converter.stringsToJSON(eventString, typeString, fromString, toString, timeString, breakBool);
         return saveTask;
     }
 

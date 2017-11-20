@@ -5,10 +5,12 @@ import android.content.SharedPreferences;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 
 /**
@@ -44,15 +46,33 @@ public class Converter {
     }
 
     /**
-     * pass in the string from shared preferences:
-     * String tasks = sp.getString("tasksMap",null);
+     * pass in a map:
+     * Returns a string that can be put into sp
      *
      * returns a HashMap that maps Strings to JSON Objects
-     * @param tasks
-     * @return tasksMap
+     * @param taskMap
+     * @return tasksMapString
      */
-    public static String mapToSP(Map<String, JSONObject> taskMap){
-
+    public static String mapToString(Map<String, JSONObject> taskMap){
+        Gson gson = new Gson();
+        String tasksMapString = gson.toJson(taskMap);
+        return tasksMapString;
     }
 
+    //Takes 6 strings and returns them in a JSON Object
+    public static JSONObject stringsToJSON(String event, String type, String from, String to, String time, Boolean breakBool){
+        JSONObject newJson = new JSONObject();
+        try {
+            newJson.put("name", event);
+            newJson.put("type", type);
+            newJson.put("startDate", from);
+            newJson.put("endDate", to);
+            newJson.put("totalTime", time);
+            newJson.put("breakUp", breakBool);
+
+        } catch (JSONException e) {
+            Log.d("JSON", e.toString());
+        }
+        return newJson;
+    }
 }
