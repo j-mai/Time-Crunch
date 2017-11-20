@@ -59,4 +59,6 @@ dependencies {
 
     compile 'com.google.code.gson:gson:2.2.4'
 
+    compile 'net.danlew:android.joda:2.9.9.1'
+
 }
