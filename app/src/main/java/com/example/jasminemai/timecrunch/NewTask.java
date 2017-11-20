@@ -40,6 +40,8 @@ import com.google.gson.GsonBuilder;
 
 import com.google.common.reflect.TypeToken;
 
+import net.danlew.android.joda.JodaTimeAndroid;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,6 +76,7 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_task);
+        JodaTimeAndroid.init(this);
         initializeVariables();
 
         onRepeatClicked();
@@ -163,6 +166,7 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
                 //Allow user to set an end date
                 else{
                     endDate.setTextIsSelectable(true);
+                    endDate.setText("");
                 }
             }
         });
@@ -286,12 +290,12 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
         //Save all objects inside JSON
         saveTask = new JSONObject();
         try {
-            saveTask.put("event", eventString);
+            saveTask.put("name", eventString);
             saveTask.put("type", typeString);
-            saveTask.put("fromTime", fromString);
-            saveTask.put("toTime", toString);
+            saveTask.put("startDate", fromString);
+            saveTask.put("endDate", toString);
             saveTask.put("totalTime", timeString);
-            saveTask.put("dontBreak", breakBool);
+            saveTask.put("breakUp", breakBool);
 
         } catch (JSONException e) {
             Log.d("JSON", e.toString());

@@ -39,6 +39,7 @@ import android.view.ViewGroup;
 
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -60,6 +61,8 @@ import com.google.api.services.calendar.model.Events;
 import com.google.api.services.calendar.model.FreeBusyRequest;
 import com.google.api.services.calendar.model.FreeBusyRequestItem;
 import com.google.api.services.calendar.model.FreeBusyResponse;
+
+import net.danlew.android.joda.JodaTimeAndroid;
 
 import org.json.JSONException;
 
@@ -106,6 +109,8 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
     GoogleAccountCredential mCredential;
     ProgressDialog mProgress;
 
+//    ProgressBar mProgress;
+
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
@@ -118,6 +123,7 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        JodaTimeAndroid.init(this);
         setContentView(R.layout.activity_tab);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -146,6 +152,9 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                 .setBackOff(new ExponentialBackOff());
 
         //TODO: Get rid of ProgressDialog and make it a progress bar
+//        mProgress = new ProgressBar(this);
+//        mProgress.setMax(100);
+
         mProgress = new ProgressDialog(this);
         mProgress.setMessage("Calling Google Calendar API ...");
 
@@ -381,7 +390,7 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
     /*
         This is an AsyncTask to make the API calls to Google Calendar in a background thread.
      */
-    private class MakeRequestTask extends AsyncTask<Void, Void, String> {
+    private class MakeRequestTask extends AsyncTask<Void, Integer, String> {
         private com.google.api.services.calendar.Calendar mService = null;
         private Exception mLastError = null;
 
@@ -433,22 +442,32 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
 //            return response.getCalendars().get("primary").getBusy().get(0).toPrettyString();
 
             Boolean check1 = TimeFunctions.bedTimeCalc("07:00:00","23:00:00");
+            publishProgress(10);
             Log.d("timeFunction", "check1: " + check1);
             Boolean check2 = TimeFunctions.bedTimeCalc("08:00:00", "02:00:00");
+            publishProgress(10);
             Log.d("timeFunction", "check2: " + check2);
             Boolean check3 = TimeFunctions.bedTimeCalc("07:53:00", "02:42:00");
+            publishProgress(10);
             Log.d("timeFunction", "check3: " + check3);
             Boolean check4 = TimeFunctions.bedTimeCalc("07:21:00", "02:50:00");
+            publishProgress(10);
             Log.d("timeFunction", "check4: " + check4);
             Boolean check5 = TimeFunctions.bedTimeCalc("02:00:00","23:15:00");
+            publishProgress(10);
             Log.d("timeFunction", "check5: " + check5);
             Boolean check6 = TimeFunctions.bedTimeCalc("08:00:00", "23:17:00");
+            publishProgress(10);
             Log.d("timeFunction", "check6: " + check6);
             Boolean check7 = TimeFunctions.bedTimeCalc("16:00:00", "11:15:00");
-
+            publishProgress(40);
             return ("lastCheck is: " + check7);
         }
 
+        @Override
+        protected void onProgressUpdate(Integer... params) {
+            mProgress.setProgress(params[0]);
+        }
 
         @Override
         protected void onPreExecute() {
@@ -473,7 +492,7 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
 
         @Override
         protected void onCancelled() {
-            mProgress.hide();
+            mProgress.show();
             if (mLastError != null) {
                 if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
                     showGooglePlayServicesAvailabilityErrorDialog(
