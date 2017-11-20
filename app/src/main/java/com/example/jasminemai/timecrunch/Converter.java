@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 import android.content.SharedPreferences;
 import android.util.Log;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 
 /**
@@ -78,18 +80,30 @@ public class Converter {
         return newJson;
     }
 
-    public static Map spToTempMap(String tasks) {
-
-        Map<String, JSONObject> taskMap = spToMap(tasks);
-
-        Map<String, ArrayList<Task>> tempMap = new HashMap<String, ArrayList<Task>>();
-
-        tempMap.put("Study", new ArrayList<Task>());
-        tempMap.put("Other", new ArrayList<Task>());
-        tempMap.put("Exercise", new ArrayList<Task>());
-
-        for (String key : taskMap.keySet()) {
-
-        }
+    //takes a json object and converts to a task object
+    public static Task jsonToTask(JSONObject json){
+        Gson gson = new GsonBuilder().create();
+        Task task = gson.fromJson(json.toString(), Task.class);
+        return task;
     }
+
+    public static ArrayList<Task> mapToArray(Map map){
+        ArrayList<Task> tasks = new ArrayList<>();
+        return tasks;
+    }
+
+//    public static Map spToTempMap(String tasks) {
+//
+//        Map<String, JSONObject> taskMap = spToMap(tasks);
+//
+//        Map<String, ArrayList<Task>> tempMap = new HashMap<String, ArrayList<Task>>();
+//
+//        tempMap.put("Study", new ArrayList<Task>());
+//        tempMap.put("Other", new ArrayList<Task>());
+//        tempMap.put("Exercise", new ArrayList<Task>());
+//
+//        for (String key : taskMap.keySet()) {
+//
+//        }
+//    }
 }
