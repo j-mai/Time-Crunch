@@ -6,9 +6,13 @@ import com.google.api.client.util.DateTime;
 
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by jasminemai on 11/18/17.
@@ -21,7 +25,7 @@ public class Task implements Comparable<Task>{
     String endDate;
     String endTime;
     String type;
-    ArrayList<String> eventID;
+    JSONArray eventID;
     String description;
     String name;
     int totalTime;
@@ -34,15 +38,19 @@ public class Task implements Comparable<Task>{
         this.type = type;
         this.totalTime = totalTime;
         this.breakUp = breakUp;
-        this.eventID = new ArrayList<String>();
+        this.eventID = new JSONArray();
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
+    public JSONArray getEventIDArray(){
+        return this.eventID;
+    }
+
     public void addEventID (String eventID) {
-        this.eventID.add(eventID);
+        this.eventID.put(eventID);
     }
 
     public void setStartTime (String startTime) {

@@ -285,11 +285,11 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
         String fromString = startDate.getText().toString();
         String toString = endDate.getText().toString();
         Boolean breakBool = dontBreak.isChecked();
-        ArrayList <String> eventIDs = new ArrayList<String>();
-        String eventIDString = eventIDs.toString();
+//        ArrayList <String> eventIDs = new ArrayList<String>();
+//        String eventIDString = eventIDs.toString();
 
         //Save all objects inside JSON
-        saveTask = Converter.stringsToJSON(eventString, typeString, fromString, toString, timeString, eventIDString, !breakBool);
+        saveTask = Converter.stringsToJSON(eventString, typeString, fromString, toString, timeString, !breakBool);
         return saveTask;
     }
 
