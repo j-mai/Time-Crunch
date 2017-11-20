@@ -580,8 +580,6 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                                     Event newlyadded = CalendarFunctions.addEventProperFormat(t1, mService, calendarId);
                                     Log.d("added event", newlyadded.toPrettyString());
 
-//                                    String eventID = newlyadded.getId();
-//                                    tasksAsJSON.get(longestTask.name).getJSONArray("eventID").put(eventID);
 
                                     TimeFunctions.removeFromTempList(tempMap, t1);
                                     all.remove(t1);
@@ -613,13 +611,9 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                                         t2.setStartTime(taskInterval.getStart().toString());
                                         t2.setEndTime(taskInterval.getEnd().toString());
 
-                                        //add event to calendar, keeping track fo the event IDs and deleting
-                                        //from the temp list.
+                                        //add event to calendar and deleting from the temp list.
                                         Event newlyadded = CalendarFunctions.addEventProperFormat(t2, mService, calendarId);
                                         Log.d("added event", newlyadded.toPrettyString());
-
-//                                    String eventID = newlyadded.getId();
-//                                    tasksAsJSON.get(longestTask.name).getJSONArray("eventID").put(eventID);
 
                                         TimeFunctions.removeFromTempList(tempMap, t2);
                                         all.remove(t2);
