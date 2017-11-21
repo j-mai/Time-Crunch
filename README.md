@@ -4,7 +4,7 @@
 ### CS65 Final Project
 
 ## Overview
-For this final project, we created an app targeted towards students that helped students manage their time more efficiently. From experience, we know that many students only put in their mandatory meetings and classes in their digital calendars, leaving the spaces in between blank. Our app strives to take in information about what the user needs to acheive and basically fills in these blanks for them, so that they have a set plan about how their day will go.
+For this final project, we created an app targeted towards students that helped students manage their time more efficiently. From experience, we know that many students only put in their mandatory meetings and classes in their digital calendars, leaving the spaces in between blank. Our app strives to take in information about what the user needs to acheive and basically fills in these blanks for them, so that they have a set plan about how their day will go. Furthermore, our app also incorporates interleaving learning (alternating between various studying tasks/subjects), which has been scientifically proven to boost learning.
 
 ## UI Overview and Stories:
 The user is first taken to a welcome screen, and can click on a button to go to the main part of the app. Here, they are greeted with a tabbed layout and a floating button. Pressing the button will take them to a new activity where they can create a task item.
@@ -23,7 +23,7 @@ In order to properly run the app from the laptop, it may be necessary to create 
 
 
 ## APIs and Libraries Used:
-  *Joda Time API
-  *Google Calendar API
-  *GSON Library
+  * Joda Time API
+  * Google Calendar API
+  * GSON Library
 
