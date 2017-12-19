@@ -129,6 +129,9 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
 
     public static String TC_SHARED_PREF = "my_sharedpref";
 
+    private static String wakeTime;
+    private static String sleepTime;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -445,21 +448,22 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
 
             String calendarId = "primary";
 
-            SharedPreferences settingsSP = getSharedPreferences(TC_SHARED_PREF, Context.MODE_PRIVATE);
-            String wakeTime = settingsSP.getString("wakeTime", "");
-            String sleepTime = settingsSP.getString("bedTime", "");
+//            SharedPreferences settingsSP = getSharedPreferences(TC_SHARED_PREF, Context.MODE_PRIVATE);
+//            String wakeTime = settingsSP.getString("wakeTime", "");
+//            String sleepTime = settingsSP.getString("bedTime", "");
+//
+//            if (wakeTime.equals("")) {
+//                wakeTime = "06:00:00";
+//            }
+//
+//            if (sleepTime.equals("") || LocalTime.parse(sleepTime).isAfter(LocalTime.parse("23:59:59"))) {
+//                sleepTime = "23:59:59";
+//            }
+//
+//            Log.d("wakeTime", wakeTime);
+//            Log.d("sleepTime", sleepTime);
 
-            if (wakeTime.equals("")) {
-                wakeTime = "06:00:00";
-            }
-
-            if (sleepTime.equals("") || LocalTime.parse(sleepTime).isAfter(LocalTime.parse("23:59:59"))) {
-                sleepTime = "23:59:59";
-            }
-
-            Log.d("wakeTime", wakeTime);
-            Log.d("sleepTime", sleepTime);
-
+            setWakeSleepTimes();
             LocalDate today = new LocalDate(DateTimeZone.getDefault());
 
             //first, see when the user is free
@@ -491,10 +495,10 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                 if (!task.equals("")) {
                     //convert information in Shared Preferences into Map
                     HashMap<String, ArrayList<JSONObject>> tasksAsJSON = Converter.spToMap(task);
+                    //create temporary list to keep track of tasks that have not been added to calendar yet
+                    //TODO: only add tasks that are for today into this arrayList
                     ArrayList<Task> allTasks = Converter.mapToArray(tasksAsJSON);
 
-                    //Create temporary map of type to task objects
-//                    Map<String, ArrayList<Task>> tempMap = Converter.createSplitUpMap(tasksAsJSON);
 
                     //show error if there is not enough free time
                     if (TimeFunctions.totalFreeTime(freeTimes) < TimeFunctions.totalTaskTimeReq(allTasks)) {
@@ -541,86 +545,30 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                         //go through remaining list of events
                         while (!allTasks.isEmpty() && freeTimes.size() > 0) {
                             Interval interval = freeTimes.get(0);
+                            Task bestTaskFit = null;
+                            for (Task t : allTasks) {
+                                if (t.totalTime <= interval.toDuration().getStandardMinutes()) {
+                                    if (bestTaskFit == null) {
+                                        bestTaskFit = t;
+                                    }
 
-                            //if the free block time is more than 60 minutes
-                            if (interval.toDuration().getStandardMinutes() >= 60) {
-                                Task t1 = null;
-
-                                //choose a task that matches the time frame
-                                for (Task t : allTasks) {
-                                    if (t.totalTime == 60) {
-                                        if (t.type.equals("Study") && lastTaskName != null &&
-                                                !lastTaskName.equals(t.name)) {
-                                            t1 = t;
+                                    if (t.totalTime >= bestTaskFit.totalTime) {
+                                        if (t.type.equals("Study") && lastTaskName != null && !lastTaskName.equals(t.name)) {
+                                            bestTaskFit = t;
                                             break;
                                         } else {
-                                            t1=t;
+                                            bestTaskFit = t;
                                         }
                                     }
-                                }
-
-                                //fit the task in the time
-                                if (t1 != null) {
-                                    lastInputType = t1.type;
-                                    lastTaskName = t1.name;
-                                    RankingAlgorithm.matchingTasksAndTimeBlocks(freeTimes, interval, 0,
-                                            t1, allTasks, mService, calendarId);
-
-                                } else { //there were no one hour tasks
-
-                                    Task t2 = null;
-                                    for (Task t : allTasks) {
-                                        if (t.totalTime < interval.toDuration().getStandardMinutes()) {
-                                            if (t.type.equals("Study") && lastTaskName != null &&
-                                                    !lastTaskName.equals(t.name)) {
-                                                t2 = t;
-                                                break;
-                                            } else {
-                                                t2=t;
-                                            }
-                                        }
-                                    }
-
-                                    if (t2 != null) {
-                                        lastInputType = t2.type;
-                                        lastTaskName = t2.name;
-                                        RankingAlgorithm.matchingTasksAndTimeBlocks(freeTimes, interval, 0,
-                                                t2, allTasks, mService, calendarId);
-
-                                    } else {
-                                        Log.d("time interval", "too short");
-                                        freeTimes.remove(0);
-                                    }
-                                }
-
-                            } else { //the interval is not more than 60 minutes
-
-                                Task t3 = null;
-                                for (Task t : allTasks) {
-                                    if (t.totalTime < interval.toDuration().getStandardMinutes()) {
-                                        if (t.type.equals("Study") && lastTaskName != null &&
-                                                !lastTaskName.equals(t.name)) {
-                                            t3 = t;
-                                            break;
-                                        } else {
-                                            t3=t;
-                                        }
-                                    }
-
-                                }
-
-                                if (t3 != null) {
-                                    lastInputType = t3.type;
-                                    lastTaskName = t3.name;
-                                    RankingAlgorithm.matchingTasksAndTimeBlocks(freeTimes, interval, 0,
-                                            t3, allTasks, mService, calendarId);
-
-                                } else {
-                                    Log.d("time interval", "too short");
-                                    freeTimes.remove(0);
                                 }
                             }
 
+                            if (bestTaskFit != null) {
+                                lastInputType = bestTaskFit.type;
+                                lastTaskName = bestTaskFit.name;
+                                RankingAlgorithm.matchingTasksAndTimeBlocks(freeTimes, interval, 0,
+                                        bestTaskFit, allTasks, mService, calendarId);
+                            }
 
                             if (allTasks.isEmpty()) { //all tasks scheduled
                                 return "FINISHED";
@@ -701,8 +649,24 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
         }
     }
 
+    private void setWakeSleepTimes() {
 
+        SharedPreferences settingsSP = getSharedPreferences(TC_SHARED_PREF, Context.MODE_PRIVATE);
+        wakeTime = settingsSP.getString("wakeTime", "");
+        sleepTime = settingsSP.getString("bedTime", "");
 
+        if (wakeTime.equals("")) {
+            wakeTime = "06:00:00";
+        }
+
+        if (sleepTime.equals("") || LocalTime.parse(sleepTime).isAfter(LocalTime.parse("23:59:59"))) {
+            sleepTime = "23:59:59";
+        }
+
+        Log.d("wakeTime", wakeTime);
+        Log.d("sleepTime", sleepTime);
+
+    }
 
 
 
