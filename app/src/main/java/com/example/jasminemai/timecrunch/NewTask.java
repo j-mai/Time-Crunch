@@ -70,11 +70,11 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
     EditText minutes;
     CheckBox dontBreak;
 
-    JSONObject saveTask;
+    ArrayList<JSONObject> saveTask;
 
     int hoursTotal;
     int minTotal;
-    Map<String, JSONObject> tasksMap;
+    Map<String, ArrayList<JSONObject>> tasksMap;
 
     //Create the New Task
     @Override
@@ -269,7 +269,7 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
     public void saveTaskAndReturn(){
         SharedPreferences sp = getSharedPreferences(TC_SHARED_PREF, 0);
         Log.d("taskToJSON", "saving task as JSON");
-        JSONObject saveTask = taskToJSON();
+        ArrayList<JSONObject> saveTask = taskToJSON();
 
         //save this task using the event name as a key
         tasksMap.put(eventName.getText().toString(), saveTask);
@@ -285,7 +285,7 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
         startActivity(todoIntent);
     }
 
-    public JSONObject taskToJSON(){
+    public ArrayList<JSONObject> taskToJSON(){
         int totalTime = (hoursTotal * 60) + minTotal;
         String timeString = Integer.toString(totalTime);
         String eventString = eventName.getText().toString();
@@ -297,7 +297,7 @@ public class NewTask extends FragmentActivity implements DatePickerDialog.OnDate
 //        String eventIDString = eventIDs.toString();
 
         //Save all objects inside JSON
-        saveTask = Converter.stringsToJSON(eventString, typeString, fromString, toString, timeString, !breakBool);
+        saveTask = Converter.taskBreakUp(eventString, typeString, fromString, toString, totalTime, !breakBool);
         return saveTask;
     }
 

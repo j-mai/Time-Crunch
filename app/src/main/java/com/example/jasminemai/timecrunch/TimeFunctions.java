@@ -197,36 +197,49 @@ public class TimeFunctions {
         return biggest;
     }
 
-    //get longest Task Block
-    public static Task getLongestTaskBlock (Map<String, ArrayList<Task>> taskMap) {
-
+    public static Task getLongestTaskBlock (ArrayList<Task> tasksList) {
         Task longest = null;
-
-        for (String key : taskMap.keySet()) {
-            for (Task task : taskMap.get(key))
-                if (longest == null) {
+        for (Task task : tasksList) {
+            if (longest == null) {
                 longest = task;
-                } else {
-                    if (longest.totalTime < task.totalTime) {
-                        longest = task;
+            } else {
+                if (longest.totalTime < task.totalTime) {
+                    longest = task;
                 }
             }
         }
 
         return longest;
-
     }
 
+//    //get longest Task Block
+//    public static Task getLongestTaskBlock (Map<String, ArrayList<Task>> taskMap) {
+//
+//        Task longest = null;
+//
+//        for (String key : taskMap.keySet()) {
+//            for (Task task : taskMap.get(key))
+//                if (longest == null) {
+//                longest = task;
+//                } else {
+//                    if (longest.totalTime < task.totalTime) {
+//                        longest = task;
+//                }
+//            }
+//        }
+//
+//        return longest;
+//
+//    }
+
     //get index of longest Task Block
-    public static int getLongestTaskBlockIndex (Map<String, ArrayList<Task>> taskMap) {
+    public static int getLongestTaskBlockIndex (ArrayList<Task> tasksList) {
 
         int index = 0;
 
-        for (String key : taskMap.keySet()) {
-            for (int i = 0; i < taskMap.get(key).size(); i++) {
-                if (taskMap.get(key).get(i).totalTime > taskMap.get(key).get(index).totalTime) {
-                    index = i;
-                }
+        for (int i = 0; i < tasksList.size(); i++) {
+            if (tasksList.get(i).totalTime > tasksList.get(index).totalTime) {
+                index = i;
             }
         }
 
@@ -234,8 +247,8 @@ public class TimeFunctions {
 
     }
 
-    public static Boolean removeFromTempList (Map<String, ArrayList<Task>> taskMap, Task task) {
-        return (taskMap.get(task.type).remove(task));
+    public static Boolean removeFromTempList (ArrayList<Task> tasksList, Task task) {
+        return (tasksList.remove(task));
     }
 
     //subtract from Intervals, for decreasing free periods
@@ -250,42 +263,35 @@ public class TimeFunctions {
     }
 
     //total time that tasks require
-    public static int totalTaskTimeReq (Map<String, JSONObject> hashMap) {
+    public static int totalTaskTimeReq (ArrayList<Task> taskList) {
 
         int totalTime = 0;
-        for (String key : hashMap.keySet()) {
-            try {
-                int time = hashMap.get(key).getInt("totalTime");
-                totalTime += time;
-            } catch (JSONException e) {
-                Log.e("totalTaskTimeReq error:", e.toString());
-                return -1;
-            }
-
+        for (Task task : taskList) {
+            totalTime += task.totalTime;
         }
 
         return totalTime;
     }
 
-    //split up splittable tasks into various 1 hour tasks
-    public static ArrayList<Task> splitUpTask (Task task) {
-
-        ArrayList<Task> splitUp = new ArrayList<>();
-
-        while (task.totalTime > 60) {
-
-            Task newTask = new Task (task.startDate, task.endDate, task.name, task.type,
-                    60, true);
-
-            splitUp.add(newTask);
-
-            task.totalTime = task.totalTime - 60;
-        }
-
-        splitUp.add(task);
-
-        return splitUp;
-    }
+//    //split up splittable tasks into various 1 hour tasks
+//    public static ArrayList<Task> splitUpTask (Task task) {
+//
+//        ArrayList<Task> splitUp = new ArrayList<>();
+//
+//        while (task.totalTime > 60) {
+//
+//            Task newTask = new Task (task.startDate, task.endDate, task.name, task.type,
+//                    60, true);
+//
+//            splitUp.add(newTask);
+//
+//            task.totalTime = task.totalTime - 60;
+//        }
+//
+//        splitUp.add(task);
+//
+//        return splitUp;
+//    }
 
 
 }
