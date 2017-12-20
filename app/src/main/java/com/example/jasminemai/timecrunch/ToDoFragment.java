@@ -95,7 +95,7 @@ public class ToDoFragment extends Fragment {
     public void getTasksList() {
         SharedPreferences sp = getActivity().getSharedPreferences(TC_SHARED_PREF, 0);
         String tasks = sp.getString("tasksMap",null);
-        HashMap<String, ArrayList<JSONObject>> map = Converter.spToMap(tasks);
+        HashMap<String, JSONObject> map = Converter.spToMap(tasks);
         taskArray = Converter.mapToArray(map);
 
         mListView = todoFragView.findViewById(R.id.todoList);
@@ -139,7 +139,7 @@ public class ToDoFragment extends Fragment {
                     Log.d("deleting", "delete: " + myTask.name);
                     SharedPreferences sp = getActivity().getSharedPreferences(TC_SHARED_PREF, 0);
                     String tasks = sp.getString("tasksMap",null);
-                    HashMap<String, ArrayList<JSONObject>> map = Converter.spToMap(tasks);
+                    HashMap<String, JSONObject> map = Converter.spToMap(tasks);
                     map.remove(myTask.name);
                     String tasksMapString = Converter.mapToString(map);
                     SharedPreferences.Editor editor = sp.edit();

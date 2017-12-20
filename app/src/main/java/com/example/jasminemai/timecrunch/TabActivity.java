@@ -81,7 +81,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -490,14 +489,13 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
 
                 if (!task.equals("")) {
                     //convert information in Shared Preferences into Map
-                    HashMap<String, ArrayList<JSONObject>> tasksAsJSON = Converter.spToMap(task);
-                    ArrayList<Task> allTasks = Converter.mapToArray(tasksAsJSON);
+                    Map<String, JSONObject> tasksAsJSON = Converter.spToMap(task);
 
                     //Create temporary map of type to task objects
-//                    Map<String, ArrayList<Task>> tempMap = Converter.createSplitUpMap(tasksAsJSON);
+                    Map<String, ArrayList<Task>> tempMap = Converter.createSplitUpMap(tasksAsJSON);
 
                     //show error if there is not enough free time
-                    if (TimeFunctions.totalFreeTime(freeTimes) < TimeFunctions.totalTaskTimeReq(allTasks)) {
+                    if (TimeFunctions.totalFreeTime(freeTimes) < TimeFunctions.totalTaskTimeReq(tasksAsJSON)) {
                         publishProgress("NOTIME");
 
                     } else {
@@ -509,8 +507,7 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                         while (overHourTask) {
                             //get the largest schedule block and fit it into the largest time block
                             Interval largestFreeTime = TimeFunctions.getLargestTimeBlock(freeTimes);
-                            int largestFreeTimeIndex = TimeFunctions.getLargestTimeBlockIndex(freeTimes);
-                            Task longestTask = TimeFunctions.getLongestTaskBlock(allTasks);
+                            Task longestTask = TimeFunctions.getLongestTaskBlock(tempMap);
 
                             if (longestTask == null) {
                                 overHourTask = false;
@@ -519,13 +516,13 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                                 if (longestTask.totalTime <= largestFreeTime.toDuration().getStandardMinutes()) {
 
                                     //fits task into block, shifting free times accordingly
-                                    RankingAlgorithm.matchingTasksAndTimeBlocks(freeTimes, largestFreeTime, largestFreeTimeIndex,
-                                            longestTask, allTasks, mService, calendarId);
+                                    RankingAlgorithm.matchingTasksAndTimeBlocks(freeTimes, largestFreeTime,
+                                            longestTask, tempMap, mService, calendarId);
 
 
                                 } else {
                                     publishProgress("TASKTOOLONG");
-                                    TimeFunctions.removeFromTempList(allTasks, longestTask);
+                                    TimeFunctions.removeFromTempList(tempMap, longestTask);
                                 }
 
                             } else {
@@ -534,20 +531,23 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                         }
 
                         Log.d ("added long tasks", "going to short tasks");
+                        ArrayList<Task> all = tempMap.get("Study");
+                        all.addAll(tempMap.get("Other"));
+                        all.addAll(tempMap.get("Exercise"));
 
                         String lastInputType = null;
                         String lastTaskName = null;
                         Interval lastTaskInterval = null;
                         //go through remaining list of events
-                        while (!allTasks.isEmpty() && freeTimes.size() > 0) {
+                        while (!all.isEmpty() && freeTimes.size() > 0) {
                             Interval interval = freeTimes.get(0);
 
-                            //if the free block time is more than 60 minutes
+                            //ff the free block time is more than 60 minutes
                             if (interval.toDuration().getStandardMinutes() >= 60) {
                                 Task t1 = null;
 
                                 //choose a task that matches the time frame
-                                for (Task t : allTasks) {
+                                for (Task t : all) {
                                     if (t.totalTime == 60) {
                                         if (t.type.equals("Study") && lastTaskName != null &&
                                                 !lastTaskName.equals(t.name)) {
@@ -563,13 +563,13 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                                 if (t1 != null) {
                                     lastInputType = t1.type;
                                     lastTaskName = t1.name;
-                                    RankingAlgorithm.matchingTasksAndTimeBlocks(freeTimes, interval, 0,
-                                            t1, allTasks, mService, calendarId);
+                                    RankingAlgorithm.calculateForShorterTimeBlocks(interval, t1, freeTimes,
+                                            mService, calendarId, tempMap, all);
 
                                 } else { //there were no one hour tasks
 
                                     Task t2 = null;
-                                    for (Task t : allTasks) {
+                                    for (Task t : all) {
                                         if (t.totalTime < interval.toDuration().getStandardMinutes()) {
                                             if (t.type.equals("Study") && lastTaskName != null &&
                                                     !lastTaskName.equals(t.name)) {
@@ -584,8 +584,8 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                                     if (t2 != null) {
                                         lastInputType = t2.type;
                                         lastTaskName = t2.name;
-                                        RankingAlgorithm.matchingTasksAndTimeBlocks(freeTimes, interval, 0,
-                                                t2, allTasks, mService, calendarId);
+                                        RankingAlgorithm.calculateForShorterTimeBlocks(interval, t2, freeTimes,
+                                                mService, calendarId, tempMap, all);
 
                                     } else {
                                         Log.d("time interval", "too short");
@@ -596,7 +596,7 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                             } else { //the interval is not more than 60 minutes
 
                                 Task t3 = null;
-                                for (Task t : allTasks) {
+                                for (Task t : all) {
                                     if (t.totalTime < interval.toDuration().getStandardMinutes()) {
                                         if (t.type.equals("Study") && lastTaskName != null &&
                                                 !lastTaskName.equals(t.name)) {
@@ -612,8 +612,8 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                                 if (t3 != null) {
                                     lastInputType = t3.type;
                                     lastTaskName = t3.name;
-                                    RankingAlgorithm.matchingTasksAndTimeBlocks(freeTimes, interval, 0,
-                                            t3, allTasks, mService, calendarId);
+                                    RankingAlgorithm.calculateForShorterTimeBlocks(interval, t3, freeTimes,
+                                            mService, calendarId, tempMap, all);
 
                                 } else {
                                     Log.d("time interval", "too short");
@@ -622,7 +622,7 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                             }
 
 
-                            if (allTasks.isEmpty()) { //all tasks scheduled
+                            if (all.isEmpty()) { //all tasks scheduled
                                 return "FINISHED";
 
                             } else if (freeTimes.size() <= 0) { //error, too many tasks
