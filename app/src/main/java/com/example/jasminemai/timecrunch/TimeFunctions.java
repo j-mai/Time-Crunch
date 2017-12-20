@@ -95,15 +95,43 @@ public class TimeFunctions {
     public static List<Interval> getFreeTimes (String startTime, String endTime,
                                                List<TimePeriod> busyTimes) {
 
-        if (busyTimes.size() == 0) {
-            return null;
-        }
-
         List<Interval> freeTimes = new ArrayList<Interval>();
         LocalDate currentDate = new LocalDate(DateTimeZone.getDefault());
-
         String newStartDate = currentDate.toString() + "T" + startTime;
         org.joda.time.DateTime startDateTime = org.joda.time.DateTime.parse(newStartDate);
+
+        org.joda.time.LocalTime endTimeConvert = new org.joda.time.LocalTime(endTime);
+
+        if (busyTimes.size() == 0) {
+
+            if (endTimeConvert.isBefore(org.joda.time.LocalTime.parse(startTime))) {
+                LocalDate tomorrow = currentDate.plusDays(1);
+                String end = tomorrow.toString() + "T" + endTime;
+                org.joda.time.DateTime endingDateTime = org.joda.time.DateTime.parse(end);
+
+//                org.joda.time.DateTime lastEndDT = org.joda.time.DateTime.parse(busyTimes.get(busyTimes.size()-1).getEnd().toString());
+                Interval lastInterval = new Interval(startDateTime, endingDateTime);
+
+                if (lastInterval.toDuration().getStandardMinutes() > 0) {
+                    freeTimes.add(lastInterval);
+                }
+
+            } else {
+                String end = currentDate.toString() + "T" + endTime;
+                org.joda.time.DateTime endingDateTime = org.joda.time.DateTime.parse(end);
+//                org.joda.time.DateTime lastEndDT = org.joda.time.DateTime.parse(busyTimes.get(busyTimes.size()-1).getEnd().toString());
+                Interval lastInterval = new Interval(startDateTime, endingDateTime);
+
+                if (lastInterval.toDuration().getStandardMinutes() > 0) {
+                    freeTimes.add(lastInterval);
+                }
+            }
+
+            return freeTimes;
+
+        }
+
+
 
         DateTime dateTime = busyTimes.get(0).getStart();
         org.joda.time.DateTime firstBusyEndTime = org.joda.time.DateTime.parse(dateTime.toString());
@@ -126,7 +154,7 @@ public class TimeFunctions {
             }
         }
 
-        org.joda.time.LocalTime endTimeConvert = new org.joda.time.LocalTime(endTime);
+
         org.joda.time.LocalTime startTimeConvert =
                 new org.joda.time.LocalTime(busyTimes.get(busyTimes.size()-1).getEnd().getValue());
 
@@ -198,17 +226,15 @@ public class TimeFunctions {
     }
 
     //get longest Task Block
-    public static Task getLongestTaskBlock (Map<String, ArrayList<Task>> taskMap) {
-
+    public static Task getLongestTaskBlock (ArrayList<Task> tasksList) {
         Task longest = null;
 
-        for (String key : taskMap.keySet()) {
-            for (Task task : taskMap.get(key))
-                if (longest == null) {
+        for (Task task : tasksList) {
+            if (longest == null) {
                 longest = task;
-                } else {
-                    if (longest.totalTime < task.totalTime) {
-                        longest = task;
+            } else {
+                if (longest.totalTime < task.totalTime) {
+                    longest = task;
                 }
             }
         }
@@ -234,8 +260,8 @@ public class TimeFunctions {
 
     }
 
-    public static Boolean removeFromTempList (Map<String, ArrayList<Task>> taskMap, Task task) {
-        return (taskMap.get(task.type).remove(task));
+    public static Boolean removeFromTempList (ArrayList<Task> tasksList, Task task) {
+        return (tasksList.remove(task));
     }
 
     //subtract from Intervals, for decreasing free periods
@@ -267,25 +293,25 @@ public class TimeFunctions {
         return totalTime;
     }
 
-    //split up splittable tasks into various 1 hour tasks
-    public static ArrayList<Task> splitUpTask (Task task) {
-
-        ArrayList<Task> splitUp = new ArrayList<>();
-
-        while (task.totalTime > 60) {
-
-            Task newTask = new Task (task.startDate, task.endDate, task.name, task.type,
-                    60, true);
-
-            splitUp.add(newTask);
-
-            task.totalTime = task.totalTime - 60;
-        }
-
-        splitUp.add(task);
-
-        return splitUp;
-    }
+//    //split up splittable tasks into various 1 hour tasks
+//    public static ArrayList<Task> splitUpTask (Task task) {
+//
+//        ArrayList<Task> splitUp = new ArrayList<>();
+//
+//        while (task.totalTime > 60) {
+//
+//            Task newTask = new Task (task.startDate, task.endDate, task.name, task.type,
+//                    60, true);
+//
+//            splitUp.add(newTask);
+//
+//            task.totalTime = task.totalTime - 60;
+//        }
+//
+//        splitUp.add(task);
+//
+//        return splitUp;
+//    }
 
 
 }

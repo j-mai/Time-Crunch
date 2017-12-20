@@ -110,37 +110,65 @@ public class Converter {
         return tasks;
     }
 
-    //create map of task type to split up tasks properly if user has chosen to split them up.
-    //calls helper function
-    public static Map<String, ArrayList<Task>> createSplitUpMap(Map <String, JSONObject> tasks) {
+    //create arraylist of tasks split up properly
+    public static ArrayList<Task> splitUpTasks (Map<String, JSONObject> tasks) {
+        ArrayList<Task> tasksSplitUp = new ArrayList<>();
 
-        Map<String, ArrayList<Task>> tempMap = new HashMap<String, ArrayList<Task>>();
-
-        tempMap.put("Study", new ArrayList<Task>());
-        tempMap.put("Other", new ArrayList<Task>());
-        tempMap.put("Exercise", new ArrayList<Task>());
-
-        for (String key : tasks.keySet()) {
-            Task task = jsonToTask(tasks.get(key));
-            String taskType = task.type;
-
-            if (task.breakUp) {
-                ArrayList<Task> tasksArray = TimeFunctions.splitUpTask(task);
-
-                for (Task eachTask : tasksArray) {
-                    tempMap.get(taskType).add(eachTask);
+        for (String task : tasks.keySet()) {
+            JSONObject taskInfo = tasks.get(task);
+            Task t = jsonToTask(taskInfo);
+            if (t.breakUp) {
+                while (t.totalTime > 60) {
+                    Task newTask = new Task(t.startDate, t.endDate, t.name, t.type, 60, true);
+                    tasksSplitUp.add(newTask);
+                    t.totalTime = t.totalTime - 60;
                 }
 
-
+                if (t.totalTime > 0) {
+                    Task newTask = new Task(t.startDate, t.endDate, t.name, t.type, t.totalTime, true);
+                    tasksSplitUp.add(newTask);
+                }
             } else {
-                tempMap.get(taskType).add(task);
-
+                Task newTask = new Task(t.startDate, t.endDate, t.name, t.type, t.totalTime, true);
+                tasksSplitUp.add(newTask);
             }
-
         }
 
-        return tempMap;
+        return tasksSplitUp;
 
     }
+
+//    //create map of task type to split up tasks properly if user has chosen to split them up.
+//    //calls helper function
+//    public static Map<String, ArrayList<Task>> createSplitUpMap(Map <String, JSONObject> tasks) {
+//
+//        Map<String, ArrayList<Task>> tempMap = new HashMap<String, ArrayList<Task>>();
+//
+//        tempMap.put("Study", new ArrayList<Task>());
+//        tempMap.put("Other", new ArrayList<Task>());
+//        tempMap.put("Exercise", new ArrayList<Task>());
+//
+//        for (String key : tasks.keySet()) {
+//            Task task = jsonToTask(tasks.get(key));
+//            String taskType = task.type;
+//
+//            if (task.breakUp) {
+//                ArrayList<Task> tasksArray = TimeFunctions.splitUpTask(task);
+//
+//                for (Task eachTask : tasksArray) {
+//                    tempMap.get(taskType).add(eachTask);
+//                }
+//
+//
+//            } else {
+//                tempMap.get(taskType).add(task);
+//
+//            }
+//
+//        }
+//
+//        return tempMap;
+//
+//    }
 
 }
