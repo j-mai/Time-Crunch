@@ -123,6 +123,19 @@ public class Converter {
 
     //takes a map of strings to arraylist of JSON objects and converts it into an ArrayList of Task Objects
     public static ArrayList<Task> mapToArray(HashMap<String, ArrayList<JSONObject>> map){
+//        ArrayList<Task> tasks = new ArrayList<>();
+//
+//        Iterator it = map.entrySet().iterator();
+//        while (it.hasNext()) {
+//            Map.Entry pair = (Map.Entry)it.next();
+//            System.out.println(pair.getKey() + " = " + pair.getValue());
+//            JSONObject taskInfo = (JSONObject) pair.getValue();
+//            Task task = jsonToTask(taskInfo);
+//            tasks.add(task);
+//            it.remove(); // avoids a ConcurrentModificationException
+//        }
+//        Collections.sort(tasks);
+//        return tasks;
 
         ArrayList<Task> allTasks = new ArrayList<>();
 
@@ -142,5 +155,38 @@ public class Converter {
         return allTasks;
 
     }
+
+    //create map of task type to split up tasks properly if user has chosen to split them up.
+    //calls helper function
+//    public static Map<String, ArrayList<Task>> createSplitUpMap(Map <String, JSONObject> tasks) {
+//
+//        Map<String, ArrayList<Task>> tempMap = new HashMap<String, ArrayList<Task>>();
+//
+//        tempMap.put("Study", new ArrayList<Task>());
+//        tempMap.put("Other", new ArrayList<Task>());
+//        tempMap.put("Exercise", new ArrayList<Task>());
+//
+//        for (String key : tasks.keySet()) {
+//            Task task = jsonToTask(tasks.get(key));
+//            String taskType = task.type;
+//
+//            if (task.breakUp) {
+//                ArrayList<Task> tasksArray = TimeFunctions.splitUpTask(task);
+//
+//                for (Task eachTask : tasksArray) {
+//                    tempMap.get(taskType).add(eachTask);
+//                }
+//
+//
+//            } else {
+//                tempMap.get(taskType).add(task);
+//
+//            }
+//
+//        }
+//
+//        return tempMap;
+//
+//    }
 
 }
