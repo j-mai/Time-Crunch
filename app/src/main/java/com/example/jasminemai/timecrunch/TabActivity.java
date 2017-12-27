@@ -506,8 +506,8 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                                 if (longestTask.totalTime <= largestFreeTime.toDuration().getStandardMinutes()) {
 
                                     //fits task into block, shifting free times accordingly
-                                    RankingAlgorithm.matchingTasksAndTimeBlocks(freeTimes, largestFreeTime,
-                                            largestFreeTimeIndex, longestTask, allTasks, mService, calendarId);
+                                    matchingTasksAndTimeBlocks(freeTimes, largestFreeTime,
+                                            largestFreeTimeIndex, longestTask, longestTask.totalTime, allTasks, mService, calendarId);
 
 
                                 } else {
@@ -549,8 +549,9 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
                             if (bestTaskFit != null) {
                                 lastInputType = bestTaskFit.type;
                                 lastTaskName = bestTaskFit.name;
-                                RankingAlgorithm.matchingTasksAndTimeBlocks(freeTimes, interval, 0,
-                                        bestTaskFit, allTasks, mService, calendarId);
+                                int totalTime = Integer.parseInt(tasksAsJSON.get(lastTaskName).get("totalTime").toString());
+                                JSONObject JsonEvent = matchingTasksAndTimeBlocks(freeTimes, interval, 0,
+                                        bestTaskFit, totalTime, allTasks, mService, calendarId);
                             }
                         }
 
@@ -652,8 +653,55 @@ public class TabActivity extends FragmentActivity implements EasyPermissions.Per
 
     }
 
+    //add event to calendar and delete from temporary task list properly
+    public JSONObject matchingTasksAndTimeBlocks (List<Interval> freeTimes, Interval freeBlock,
+                                                        int freeBlockIndex, Task task, int totalTime,
+                                                        ArrayList<Task> tasksList,
+                                                        com.google.api.services.calendar.Calendar calendar,
+                                                        String calendarId) throws IOException {
 
+        org.joda.time.DateTime startDT = org.joda.time.DateTime.parse(freeBlock.getStart().toString());
+        org.joda.time.DateTime endDT = startDT.plusMinutes(task.totalTime);
 
+        Interval newTaskInterval = new Interval(startDT, endDT);
+
+        Log.d("newtaskinterval", newTaskInterval.toString());
+
+        //subtract from free interval
+        Interval newFreeInterval = TimeFunctions.decreaseIntervalFromHead(freeBlock, newTaskInterval);
+
+        if (newFreeInterval.toDuration().getStandardMinutes() > 0) {
+            freeTimes.set(freeBlockIndex, newFreeInterval);
+        } else {
+            freeTimes.remove(freeBlockIndex);
+        }
+
+        Log.d("newtaskintervalStart", newTaskInterval.getStart().toString());
+        Log.d("newtaskintervalEnd", newTaskInterval.getEnd().toString());
+
+        task.setStartTime(newTaskInterval.getStart().toString());
+        task.setEndTime(newTaskInterval.getEnd().toString());
+
+        //add event to calendar, keeping track and deleting
+        //from the temp list.
+        Event newlyadded = CalendarFunctions.addEventProperFormat(task, calendar, calendarId);
+        Log.d("added event", newlyadded.toPrettyString());
+
+        //remove from the list keeping track of the task
+        tasksList.remove(task);
+
+        if (newlyadded != null && newlyadded.getId() != null) {
+            JSONObject eventJson = Converter.stringsToEventJSON(newlyadded.getSummary(),
+                    totalTime, task.breakUp, task.totalTime, newlyadded.getStart().toString(),
+                    newlyadded.getEnd().toString(), newlyadded.getId(), task.type);
+
+            return eventJson;
+
+        } else {
+            return null;
+        }
+
+    }
 
 }
 

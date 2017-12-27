@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
+import org.joda.time.LocalDate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -86,6 +87,27 @@ public class Converter {
         return newJson;
     }
 
+    //Takes strings, int, and a bool and returns them in a JSONObject for EventInfo
+    public static JSONObject stringsToEventJSON (String name, int totalTime, Boolean breakable, int duration,
+                                                 String start, String end, String eventID, String type) {
+        JSONObject newJson = new JSONObject();
+        try {
+            newJson.put("name", name);
+            newJson.put("totalTime", totalTime);
+            newJson.put("breakUp", breakable);
+            newJson.put("duration", duration);
+            newJson.put("start", start);
+            newJson.put("end", end);
+            newJson.put("eventID", eventID);
+            newJson.put("type", type);
+
+        } catch (JSONException e) {
+            Log.e("JSON", e.toString());
+        }
+
+        return newJson;
+    }
+
     //takes a json object and converts to a task object
     public static Task jsonToTask(JSONObject json){
         Gson gson = new GsonBuilder().create();
@@ -117,20 +139,37 @@ public class Converter {
         for (String task : tasks.keySet()) {
             JSONObject taskInfo = tasks.get(task);
             Task t = jsonToTask(taskInfo);
-            if (t.breakUp) {
-                while (t.totalTime > 60) {
-                    Task newTask = new Task(t.startDate, t.endDate, t.name, t.type, 60, true);
-                    tasksSplitUp.add(newTask);
-                    t.totalTime = t.totalTime - 60;
+            LocalDate startDate = new LocalDate(t.startDate);
+            Boolean taskValid = false;
+            if (!t.endDate.equals("none")) {
+                LocalDate endDate = new LocalDate(t.endDate);
+                if (endDate.isAfter(LocalDate.now()) && (startDate.isBefore(LocalDate.now())
+                        || startDate.isEqual(LocalDate.now()))) {
+                    taskValid = true;
                 }
+            } else {
+                if (startDate.isBefore(LocalDate.now())
+                        || startDate.isEqual(LocalDate.now())) {
+                    taskValid = true;
+                }
+            }
 
-                if (t.totalTime > 0) {
+            if (taskValid) {
+                if (t.breakUp) {
+                    while (t.totalTime > 60) {
+                        Task newTask = new Task(t.startDate, t.endDate, t.name, t.type, 60, true);
+                        tasksSplitUp.add(newTask);
+                        t.totalTime = t.totalTime - 60;
+                    }
+
+                    if (t.totalTime > 0) {
+                        Task newTask = new Task(t.startDate, t.endDate, t.name, t.type, t.totalTime, true);
+                        tasksSplitUp.add(newTask);
+                    }
+                } else {
                     Task newTask = new Task(t.startDate, t.endDate, t.name, t.type, t.totalTime, true);
                     tasksSplitUp.add(newTask);
                 }
-            } else {
-                Task newTask = new Task(t.startDate, t.endDate, t.name, t.type, t.totalTime, true);
-                tasksSplitUp.add(newTask);
             }
         }
 
