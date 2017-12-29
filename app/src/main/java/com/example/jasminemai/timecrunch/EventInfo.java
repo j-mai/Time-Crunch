@@ -9,14 +9,14 @@ import org.joda.time.Period;
 
 public class EventInfo {
 
-    String eventName;
-    int totalTime;
-    Boolean breakable;
-    int duration;
-    DateTime start;
-    DateTime end;
-    String eventID;
-    String type;
+    private String eventName;
+    private int totalTime;
+    private Boolean breakable;
+    private int duration;
+    private DateTime start;
+    private DateTime end;
+    private String eventID;
+    private String type;
 
     public EventInfo (String eventName, int totalTime, Boolean breakable, int duration, DateTime start,
                       DateTime end, String eventID, String type) {
@@ -55,6 +55,14 @@ public class EventInfo {
         return this.eventID;
     }
 
+    public String getEventType () {
+        return this.type;
+    }
+
+    public Boolean getBreakable () {
+        return this.breakable;
+    }
+
     public Boolean onGoing (DateTime now) {
         return (now.isEqual(this.start) || now.isAfter(this.start) && now.isBefore(this.end));
     }
@@ -67,5 +75,9 @@ public class EventInfo {
     public int passedTime (DateTime now) {
         Period period = new Period (this.start, now);
         return (period.getMinutes());
+    }
+
+    public Boolean finishedTask (DateTime now) {
+        return (now.isAfter(this.start) && (now.isAfter(this.end) || now.isEqual(this.end)));
     }
 }

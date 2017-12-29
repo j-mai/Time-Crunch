@@ -2,14 +2,19 @@ package com.example.jasminemai.timecrunch;
 
 import android.content.SharedPreferences;
 
+import com.google.api.services.calendar.Calendar;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,6 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import android.content.SharedPreferences;
+import android.util.EventLog;
 import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -46,13 +52,63 @@ public class Converter {
 
         //If a values map already exists, set it equal to tasksMap variable
         //else, create a new map
-        if (tasks != null){
+        if (tasks != null && !tasks.equals("")){
             java.lang.reflect.Type type = new TypeToken<HashMap<String, JSONObject>>(){}.getType();
             tasksMap = gson.fromJson(tasks, type);
         } else {
             tasksMap = new HashMap<String, JSONObject>();
         }
         return tasksMap;
+    }
+
+    //takes string from shared preferences and changes it to map of event name to
+    //array list of inputted calendar events
+    public static HashMap<String, ArrayList<EventInfo>> spToEventInfo (String events) {
+        HashMap<String, ArrayList<EventInfo>> eventsMap;
+
+        Gson gson = new Gson();
+
+        //if events map already exists, set it equal to eventsMap
+        //else, create a new map
+
+        if (events != null && !events.equals("")) {
+            Type type = new TypeToken<HashMap<String, ArrayList<EventInfo>>>(){}.getType();
+            eventsMap = gson.fromJson(events, type);
+        } else {
+            eventsMap = new HashMap<String, ArrayList<EventInfo>>();
+        }
+
+        return eventsMap;
+    }
+
+    //takes string from shared preferences and changes it to map of event name to
+    //array list of JSONObjects of inputted calendar events
+    public static HashMap<String, ArrayList<JSONObject>> spToEventJSON (String events) {
+        HashMap<String, ArrayList<JSONObject>> eventsMap;
+
+        Gson gson = new Gson();
+
+        //if events map already exists, set it equal to eventsMap
+        //else, create a new map
+
+        if (events != null && !events.equals("")) {
+            Type type = new TypeToken<HashMap<String, ArrayList<JSONObject>>>(){}.getType();
+            eventsMap = gson.fromJson(events, type);
+        } else {
+            eventsMap = new HashMap<String, ArrayList<JSONObject>>();
+        }
+
+        return eventsMap;
+    }
+
+    /**
+     * pass in a map of string to array list of events
+     * returns a string that can be put into sp
+     */
+    public static String eventsMapToString (Map <String, ArrayList<JSONObject>> events) {
+        Gson gson = new Gson();
+        String eventsString = gson.toJson(events);
+        return eventsString;
     }
 
     /**
@@ -133,41 +189,64 @@ public class Converter {
     }
 
     //create arraylist of tasks split up properly
-    public static ArrayList<Task> splitUpTasks (Map<String, JSONObject> tasks) {
+    public static ArrayList<Task> splitUpTasks (Map<String, JSONObject> tasks,
+                                                Map<String, ArrayList<EventInfo>> eventsMap, Calendar calendar,
+                                                String calendarID, DateTime currentDateTime) {
+
         ArrayList<Task> tasksSplitUp = new ArrayList<>();
 
         for (String task : tasks.keySet()) {
             JSONObject taskInfo = tasks.get(task);
             Task t = jsonToTask(taskInfo);
-            LocalDate startDate = new LocalDate(t.startDate);
+            LocalDate startDate = new LocalDate(t.getStartDate());
+            LocalDate currentDate = currentDateTime.toLocalDate();
             Boolean taskValid = false;
-            if (!t.endDate.equals("none")) {
-                LocalDate endDate = new LocalDate(t.endDate);
-                if (endDate.isAfter(LocalDate.now()) && (startDate.isBefore(LocalDate.now())
+            if (!t.getEndDate().equals("none")) {
+                LocalDate endDate = new LocalDate(t.getEndDate());
+                if ((endDate.isAfter(currentDate) ||
+                        endDate.isEqual(currentDate)) && (startDate.isBefore(currentDate)
                         || startDate.isEqual(LocalDate.now()))) {
                     taskValid = true;
                 }
             } else {
-                if (startDate.isBefore(LocalDate.now())
-                        || startDate.isEqual(LocalDate.now())) {
+                if (startDate.isBefore(currentDate)
+                        || startDate.isEqual(currentDate)) {
                     taskValid = true;
                 }
             }
 
             if (taskValid) {
-                if (t.breakUp) {
-                    while (t.totalTime > 60) {
-                        Task newTask = new Task(t.startDate, t.endDate, t.name, t.type, 60, true);
-                        tasksSplitUp.add(newTask);
-                        t.totalTime = t.totalTime - 60;
+                int totalTime = t.getTotalTime();
+
+                if (eventsMap != null) {
+                    ArrayList<EventInfo> events = eventsMap.get(t.getTaskName());
+                    if (events != null) {
+                        try {
+                            totalTime = totalTime - TimeFunctions.totalTimeSpent(events, currentDateTime, calendar, calendarID);
+                        } catch (IOException e) {
+                            Log.e("totalTimeSpentError", e.toString());
+                        }
                     }
 
-                    if (t.totalTime > 0) {
-                        Task newTask = new Task(t.startDate, t.endDate, t.name, t.type, t.totalTime, true);
+
+                }
+
+                if (t.getBreakUp()) {
+                    while (totalTime > 60) {
+                        Task newTask = new Task(t.getStartDate(), t.getEndDate(), t.getTaskName(),
+                                t.getType(), 60, true);
+                        tasksSplitUp.add(newTask);
+                        totalTime = totalTime - 60;
+                    }
+
+                    if (totalTime > 0) {
+                        Task newTask = new Task(t.getStartDate(), t.getEndDate(), t.getTaskName(),
+                                t.getType(), totalTime, true);
                         tasksSplitUp.add(newTask);
                     }
                 } else {
-                    Task newTask = new Task(t.startDate, t.endDate, t.name, t.type, t.totalTime, true);
+                    Task newTask = new Task(t.getStartDate(),
+                            t.getEndDate(), t.getTaskName(), t.getType(), totalTime, true);
                     tasksSplitUp.add(newTask);
                 }
             }

@@ -12,6 +12,7 @@ import com.google.api.services.calendar.model.FreeBusyRequestItem;
 import com.google.api.services.calendar.model.FreeBusyResponse;
 import com.google.api.services.calendar.model.TimePeriod;
 
+import org.joda.time.Period;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -90,16 +91,16 @@ public class CalendarFunctions {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
 
         Event event = new Event()
-                .setSummary(task.name);
+                .setSummary(task.getTaskName());
 
-        if (task.description != null) {
-            event.setDescription(task.description);
+        if (task.getDescription() != null) {
+            event.setDescription(task.getDescription());
         }
 
         //try creating a new DateTime from parsing into the correct format
         DateTime startDateTime = null;
         try {
-            Date d = dateFormat.parse(task.startTime);
+            Date d = dateFormat.parse(task.getStartTime());
             startDateTime = new DateTime(d, TimeZone.getDefault());
         } catch (ParseException exception) {
             Log.w("DateTime parsing", exception.toString());
@@ -119,7 +120,7 @@ public class CalendarFunctions {
         DateTime endDateTime = null;
 
         try {
-            Date d = dateFormat.parse(task.endTime);
+            Date d = dateFormat.parse(task.getEndTime());
             endDateTime = new DateTime(d, TimeZone.getDefault());
         } catch (ParseException exception) {
             Log.w("DateTime parsing", exception.toString());
@@ -140,35 +141,53 @@ public class CalendarFunctions {
 
     }
 
-    //function to add event to calendar - used if the there is not time in the time string
-    public static Event addEvent(Task task, Calendar calendar, String calendarId) throws IOException{
+//    //function to add event to calendar - used if the there is not time in the time string
+//    public static Event addEvent(Task task, Calendar calendar, String calendarId) throws IOException{
+//
+//        Event event = new Event()
+//                .setSummary(task.getTaskName());
+//
+//        if (task.getDescription() != null) {
+//            event.setDescription(task.description);
+//        }
+//
+//        DateTime startDateTime = makeDate(task.startDate, task.startTime);
+//        String timeZone = TimeZone.getDefault().getID();
+//        EventDateTime start = new EventDateTime()
+//                .setDateTime(startDateTime)
+//                .setTimeZone(timeZone);
+//
+//        event.setStart(start);
+//
+//        DateTime endDateTime = makeDate(task.endDate, task.endTime);
+//        EventDateTime end = new EventDateTime()
+//                .setDateTime(endDateTime)
+//                .setTimeZone(timeZone);
+//
+//        event.setEnd(end);
+//
+//        event = calendar.events().insert(calendarId, event).execute();
+//
+//        return event;
+//
+//    }
 
-        Event event = new Event()
-                .setSummary(task.name);
+    //function to delete an event from a calendar
+    public static Boolean deleteEvent (String eventID, Calendar calendar,
+                                       String calendarId) throws IOException {
 
-        if (task.description != null) {
-            event.setDescription(task.description);
+        if (eventID != null) {
+            Calendar.Events.Delete response = calendar.events().delete(calendarId, eventID);
+
+            if (response == null) {
+                return true;
+            } else {
+                Log.e("deleteEvent failed", response.toString());
+                return false;
+            }
         }
 
-        DateTime startDateTime = makeDate(task.startDate, task.startTime);
-        String timeZone = TimeZone.getDefault().getID();
-        EventDateTime start = new EventDateTime()
-                .setDateTime(startDateTime)
-                .setTimeZone(timeZone);
-
-        event.setStart(start);
-
-        DateTime endDateTime = makeDate(task.endDate, task.endTime);
-        EventDateTime end = new EventDateTime()
-                .setDateTime(endDateTime)
-                .setTimeZone(timeZone);
-
-        event.setEnd(end);
-
-        event = calendar.events().insert(calendarId, event).execute();
-
-        return event;
-
+        return false;
     }
 
 //    //function to delete an event from a calendar

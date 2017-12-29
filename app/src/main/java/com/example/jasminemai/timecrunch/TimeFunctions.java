@@ -3,6 +3,7 @@ package com.example.jasminemai.timecrunch;
 import android.util.Log;
 
 import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.TimePeriod;
 
 import org.joda.time.DateTimeZone;
@@ -11,10 +12,12 @@ import org.joda.time.LocalDate;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -137,6 +140,7 @@ public class TimeFunctions {
         org.joda.time.DateTime firstBusyEndTime = org.joda.time.DateTime.parse(dateTime.toString());
 
         Interval interval = new Interval(startDateTime, firstBusyEndTime);
+        Log.d("insidegetFreeTimes", "before checking");
 
         if (interval.toDuration().getStandardMinutes() > 0) {
             freeTimes.add(interval);
@@ -233,7 +237,7 @@ public class TimeFunctions {
             if (longest == null) {
                 longest = task;
             } else {
-                if (longest.totalTime < task.totalTime) {
+                if (longest.getTotalTime() < task.getTotalTime()) {
                     longest = task;
                 }
             }
@@ -250,7 +254,7 @@ public class TimeFunctions {
 
         for (String key : taskMap.keySet()) {
             for (int i = 0; i < taskMap.get(key).size(); i++) {
-                if (taskMap.get(key).get(i).totalTime > taskMap.get(key).get(index).totalTime) {
+                if (taskMap.get(key).get(i).getTotalTime() > taskMap.get(key).get(index).getTotalTime()) {
                     index = i;
                 }
             }
@@ -291,6 +295,59 @@ public class TimeFunctions {
         }
 
         return totalTime;
+    }
+
+    //calculate time already spent on task
+    //if task is found to be ongoing, replaces google calendar event with an event containing
+    //the partial time spent
+    public static int totalTimeSpent (ArrayList<EventInfo> events, org.joda.time.DateTime now,
+                                      com.google.api.services.calendar.Calendar calendar,
+                                      String calendarID) throws IOException{
+        int totalTimeSpent = 0;
+
+        int index = 0;
+
+        while (events.get(index).finishedTask(now) && index < events.size()) {
+            totalTimeSpent += events.get(index).getDuration();
+            index += 1;
+        }
+
+        if (index < events.size() && events.get(index).onGoing(now)) {
+            EventInfo event = events.get(index);
+            totalTimeSpent += event.passedTime(now);
+            Task newTask = new Task(event.getStart().toLocalDate().toString(),
+                    event.getEnd().toLocalDate().toString(), event.getEventName(),
+                    event.getEventType(), event.passedTime(now), event.getBreakable());
+
+            newTask.setStartTime(event.getStart().toLocalTime().toString());
+            newTask.setEndTime(now.toLocalTime().toString());
+
+            Event eventResponse = CalendarFunctions.addEventProperFormat(newTask, calendar, calendarID);
+            CalendarFunctions.deleteEvent(event.getEventID(), calendar, calendarID);
+
+            if (eventResponse != null && eventResponse.getId() != null) {
+                EventInfo newEvent = new EventInfo(event.getEventName(), event.getTotalTime(),
+                        event.getBreakable(), event.passedTime(now),
+                        new org.joda.time.DateTime(eventResponse.getStart().getDateTime().toString()),
+                        new org.joda.time.DateTime(eventResponse.getEnd().getDateTime().toString()),
+                        eventResponse.getId(), event.getEventType());
+
+                events.set(index, newEvent);
+                index += 1;
+            }
+
+        }
+
+        if (index < events.size()) {
+            for (int i = (events.size() - 1); i > index; i--) {
+                if (now.isBefore(events.get(i).getStart())) {
+                    CalendarFunctions.deleteEvent(events.get(i).getEventID(), calendar, calendarID);
+                    events.remove(i);
+                }
+            }
+        }
+
+        return totalTimeSpent;
     }
 
 //    //split up splittable tasks into various 1 hour tasks

@@ -125,22 +125,22 @@ public class ToDoFragment extends Fragment {
             TextView fromTime = convertView.findViewById(R.id.start);
             final ImageButton delete = convertView.findViewById(R.id.delete);
 
-            eventName.setText(myTask.name);
-            String end = " to " + myTask.endDate;
-            if (myTask.endDate.equals("")){
+            eventName.setText(myTask.getTaskName());
+            String end = " to " + myTask.getEndDate();
+            if (myTask.getEndDate().equals("")){
                 end = "...";
             }
-            fromTime.setText(myTask.startDate + end);
+            fromTime.setText(myTask.getStartDate() + end);
 
             //if the user has caught the cat, allow them to unlock a fact by pressing the button
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Log.d("deleting", "delete: " + myTask.name);
+                    Log.d("deleting", "delete: " + myTask.getTaskName());
                     SharedPreferences sp = getActivity().getSharedPreferences(TC_SHARED_PREF, 0);
                     String tasks = sp.getString("tasksMap",null);
                     HashMap<String, JSONObject> map = Converter.spToMap(tasks);
-                    map.remove(myTask.name);
+                    map.remove(myTask.getTaskName());
                     String tasksMapString = Converter.mapToString(map);
                     SharedPreferences.Editor editor = sp.edit();
                     editor.putString("tasksMap", tasksMapString);

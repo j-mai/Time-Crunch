@@ -20,16 +20,15 @@ import java.util.List;
  */
 
 public class Task implements Comparable<Task>{
-    String startDate;
-    String startTime;
-    String endDate;
-    String endTime;
-    String type;
-    JSONArray eventID;
-    String description;
-    String name;
-    int totalTime;
-    boolean breakUp;
+    private String startDate;
+    private String startTime;
+    private String endDate;
+    private String endTime;
+    private String type;
+    private String description;
+    private String name;
+    private int totalTime;
+    private boolean breakUp;
 
     //constructor for a Task object
     public Task (String startDate, String endDate, String name, String type, int totalTime, boolean breakUp) {
@@ -39,23 +38,77 @@ public class Task implements Comparable<Task>{
         this.type = type;
         this.totalTime = totalTime;
         this.breakUp = breakUp;
-        this.eventID = new JSONArray();
     }
 
+    public String getDescription() {
+        return this.description;
+    }
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public JSONArray getEventIDArray(){
-        return this.eventID;
+    public String getStartDate () {
+        return this.startDate;
     }
 
-    public void addEventID (String eventID) {
-        this.eventID.put(eventID);
+    public void setStartDate (String start) {
+        this.startDate = start;
+    }
+
+    public String getEndDate () {
+        return this.endDate;
+    }
+
+    public void setEndDate (String end) {
+        this.endDate = end;
+    }
+
+    public String getTaskName () {
+        return this.name;
+    }
+
+    public int getTotalTime () {
+        return this.totalTime;
+    }
+
+    public void setTotalTime (int time) {
+        this.totalTime = time;
+    }
+
+    public Boolean getBreakUp () {
+        return this.breakUp;
+    }
+
+    public void setBreakUp (Boolean breakUp) {
+        this.breakUp = breakUp;
+    }
+
+    public String getType () {
+        return this.type;
+    }
+
+    public void setType (String type) {
+        this.type = type;
+    }
+
+    //    public JSONArray getEventIDArray(){
+//        return this.eventID;
+//    }
+
+//    public void addEventID (String eventID) {
+//        this.eventID.put(eventID);
+//    }
+
+    public String getStartTime () {
+        return this.startTime;
     }
 
     public void setStartTime (String startTime) {
         this.startTime = startTime;
+    }
+
+    public String getEndTime() {
+        return this.endTime;
     }
 
     public void setEndTime (String endTime) {
